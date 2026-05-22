@@ -70,7 +70,7 @@ export function AIChatbot() {
                     {SUGGESTED_PROMPTS.map((q) => (
                       <button
                         key={q}
-                        onClick={() => { setInput(q); sendMessage(q); }}
+                        onClick={() => { setInput(""); sendMessage(q); }}
                         className="text-xs px-2.5 py-1 rounded-full bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
                       >
                         {q}

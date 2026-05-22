@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect } from "react";
 import { useScroll, useMotionValueEvent, motion, AnimatePresence } from "framer-motion";
 
 // ─── Checkpoint data ──────────────────────────────────────────────────────────
@@ -519,100 +519,132 @@ export function MountainJourney() {
     scrollRef.current = v;
   });
 
-  // Draw loop
-  const draw = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const w = canvas.clientWidth;
-    const h = canvas.clientHeight;
-    const dt = 0.016;
-    timeRef.current += dt;
-
-    // Smooth lerp — this is what makes it butter
-    smoothRef.current += (scrollRef.current - smoothRef.current) * 0.06;
-    const p = smoothRef.current;
-
-    // Sky
-    const sky = blendSky(p);
-    const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
-    skyGrad.addColorStop(0.0, sky.top);
-    skyGrad.addColorStop(0.45, sky.mid);
-    skyGrad.addColorStop(1.0, sky.bot);
-    ctx.fillStyle = skyGrad;
-    ctx.fillRect(0, 0, w, h);
-
-    // Stars
-    const starsOpacity = p > 0.6 ? Math.min((p - 0.6) / 0.15, 1) : 0;
-    drawStars(ctx, w, h, starsOpacity, timeRef.current);
-
-    // Sun / Moon
-    drawSunMoon(ctx, w, h, p, sky);
-
-    // Back mountains (parallax shift)
-    drawBackMountains(ctx, w, h, p * w * 0.12);
-
-    // Main mountain
-    drawMountain(ctx, w, h);
-    drawSnowCap(ctx, w, h);
-
-    // Fog / haze
-    drawFog(ctx, w, h, p);
-
-    // Trees (fade out as we climb)
-    const treeOpacity = Math.max(0, 1 - p * 5);
-    drawTrees(ctx, w, h, treeOpacity);
-
-    // Trail + climber
-    drawTrail(ctx, w, h, p);
-    drawCheckpointDots(ctx, w, h, p);
-
-    const climberPos = getPathPoint(p, w, h);
-    const climberAngle = getPathAngle(p, w, h);
-    drawClimber(ctx, climberPos.x, climberPos.y, climberAngle, p);
-
-    // Snow
-    const snowIntensity = p > 0.65 ? Math.min((p - 0.65) / 0.18, 1) : 0;
-    drawSnow(ctx, w, h, snowIntensity, timeRef.current);
-
-    // Throttle HTML updates to ~12fps
-    frameCount.current++;
-    if (frameCount.current % 5 === 0) {
-      const ids = new Set<string>();
-      const positions: Record<string, { x: number; y: number }> = {};
-      CPS.forEach((cp) => {
-        if (p >= cp.t - 0.02) ids.add(cp.id);
-        const pt = getPathPoint(cp.t, w, h);
-        positions[cp.id] = { x: pt.x / w, y: pt.y / h }; // normalized
-      });
-      setVisibleIds(ids);
-      setCpScreenPositions(positions);
-      setCanvasSize({ w, h });
-    }
-
-    rafRef.current = requestAnimationFrame(draw);
-  }, []);
-
+  // Draw loop — defined inside useEffect so self-recursion has stable closure
+  // even under React Strict Mode double-mount.
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+
+    let rafId = 0;
+    let cancelled = false;
+    let lastDpr = 0;
+    let lastCssW = 0;
+    let lastCssH = 0;
+
     const resize = () => {
       const dpr = Math.min(window.devicePixelRatio, 2);
-      canvas.width = canvas.clientWidth * dpr;
-      canvas.height = canvas.clientHeight * dpr;
+      const cssW = canvas.clientWidth;
+      const cssH = canvas.clientHeight;
+      if (cssW === lastCssW && cssH === lastCssH && dpr === lastDpr) return;
+      lastDpr = dpr;
+      lastCssW = cssW;
+      lastCssH = cssH;
+      canvas.width = cssW * dpr;
+      canvas.height = cssH * dpr;
       const ctx = canvas.getContext("2d");
-      if (ctx) ctx.scale(dpr, dpr);
+      if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
+
+    const draw = () => {
+      if (cancelled) return;
+      const c = canvasRef.current;
+      if (!c) {
+        rafId = requestAnimationFrame(draw);
+        return;
+      }
+      const ctx = c.getContext("2d");
+      if (!ctx) {
+        rafId = requestAnimationFrame(draw);
+        return;
+      }
+
+      resize(); // re-apply if viewport / DPR changed
+
+      const w = c.clientWidth;
+      const h = c.clientHeight;
+
+      if (w === 0 || h === 0) {
+        rafId = requestAnimationFrame(draw);
+        return;
+      }
+
+      const dt = 0.016;
+      timeRef.current += dt;
+
+      smoothRef.current += (scrollRef.current - smoothRef.current) * 0.06;
+      const p = smoothRef.current;
+
+      // Sky
+      const sky = blendSky(p);
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, h);
+      skyGrad.addColorStop(0.0, sky.top);
+      skyGrad.addColorStop(0.45, sky.mid);
+      skyGrad.addColorStop(1.0, sky.bot);
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      // Stars
+      const starsOpacity = p > 0.6 ? Math.min((p - 0.6) / 0.15, 1) : 0;
+      drawStars(ctx, w, h, starsOpacity, timeRef.current);
+
+      // Sun / Moon
+      drawSunMoon(ctx, w, h, p, sky);
+
+      // Back mountains (parallax)
+      drawBackMountains(ctx, w, h, p * w * 0.12);
+
+      // Main mountain
+      drawMountain(ctx, w, h);
+      drawSnowCap(ctx, w, h);
+
+      // Fog / haze
+      drawFog(ctx, w, h, p);
+
+      // Trees (fade out as we climb)
+      const treeOpacity = Math.max(0, 1 - p * 5);
+      drawTrees(ctx, w, h, treeOpacity);
+
+      // Trail + climber
+      drawTrail(ctx, w, h, p);
+      drawCheckpointDots(ctx, w, h, p);
+
+      const climberPos = getPathPoint(p, w, h);
+      const climberAngle = getPathAngle(p, w, h);
+      drawClimber(ctx, climberPos.x, climberPos.y, climberAngle, p);
+
+      // Snow
+      const snowIntensity = p > 0.65 ? Math.min((p - 0.65) / 0.18, 1) : 0;
+      drawSnow(ctx, w, h, snowIntensity, timeRef.current);
+
+      // Throttle HTML updates to ~12fps
+      frameCount.current++;
+      if (frameCount.current % 5 === 0) {
+        const ids = new Set<string>();
+        const positions: Record<string, { x: number; y: number }> = {};
+        CPS.forEach((cp) => {
+          if (p >= cp.t - 0.02) ids.add(cp.id);
+          const pt = getPathPoint(cp.t, w, h);
+          positions[cp.id] = { x: pt.x / w, y: pt.y / h };
+        });
+        setVisibleIds(ids);
+        setCpScreenPositions(positions);
+        setCanvasSize({ w, h });
+      }
+
+      rafId = requestAnimationFrame(draw);
+    };
+
     resize();
     window.addEventListener("resize", resize);
-    rafRef.current = requestAnimationFrame(draw);
+    rafId = requestAnimationFrame(draw);
+    rafRef.current = rafId;
+
     return () => {
+      cancelled = true;
       window.removeEventListener("resize", resize);
-      cancelAnimationFrame(rafRef.current);
+      cancelAnimationFrame(rafId);
     };
-  }, [draw]);
+  }, []);
 
   const uiProgress = smoothRef.current;
 

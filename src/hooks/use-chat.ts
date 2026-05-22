@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { SYSTEM_PROMPT } from "@/data/chatbot-context";
 
 export interface ChatMessage {
   role: "user" | "assistant";
@@ -40,11 +39,11 @@ export function useChat() {
 
     try {
       const allMessages = [...messages, newUserMsg];
+      // System prompt and grounded context live in the Worker — client sends messages only.
       const res = await fetch(API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          system: SYSTEM_PROMPT,
           messages: allMessages.map((m) => ({ role: m.role, content: m.content })),
         }),
       });

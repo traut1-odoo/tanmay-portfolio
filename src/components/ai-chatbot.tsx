@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Bot, User } from "lucide-react";
 import { useChat } from "@/hooks/use-chat";
+import { INPUT_PLACEHOLDER, SUGGESTED_PROMPTS } from "@/data/chatbot-context";
 
 export function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -63,10 +64,10 @@ export function AIChatbot() {
                 <div className="text-center py-8">
                   <Bot className="w-8 h-8 text-accent/40 mx-auto mb-3" />
                   <p className="text-sm text-text-secondary">
-                    Ask me anything about Tanmay&apos;s experience, skills, or projects!
+                    Ask about Tanmay&apos;s projects, stack, philosophy, or the Odoo 17 cutover.
                   </p>
                   <div className="mt-3 flex flex-wrap gap-1.5 justify-center">
-                    {["What does Tanmay do?", "ERP experience?", "Tech stack?"].map((q) => (
+                    {SUGGESTED_PROMPTS.map((q) => (
                       <button
                         key={q}
                         onClick={() => { setInput(q); sendMessage(q); }}
@@ -133,7 +134,7 @@ export function AIChatbot() {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder="Ask something..."
+                placeholder={INPUT_PLACEHOLDER}
                 className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:border-accent transition-colors placeholder:text-text-secondary/50"
               />
               <button

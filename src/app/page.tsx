@@ -20,6 +20,11 @@ const HeroScene = dynamic(() => import("@/components/hero-scene").then(mod => ({
   ssr: false,
 });
 
+const MountainJourney = dynamic(
+  () => import("@/components/mountain-journey").then(mod => ({ default: mod.MountainJourney })),
+  { ssr: false }
+);
+
 const featuredProjects = projects.filter((p) => p.featured);
 
 const stats = [
@@ -344,89 +349,9 @@ export default function Home() {
         <TechLogos />
       </section>
 
-      {/* ═══ EXPERIENCE + ABOUT BENTO ═══ */}
-      <Container>
-        <section className="py-4">
-          <div className="grid grid-cols-4 md:grid-cols-12 gap-3 auto-rows-[140px]">
+      {/* ═══ MOUNTAIN JOURNEY ═══ */}
+      <MountainJourney />
 
-            {/* Experience card */}
-            <BentoCard className="col-span-4 md:col-span-7 row-span-3 p-8 md:p-10 flex flex-col justify-between overflow-hidden" delay={0}>
-              <GradientBlob className="w-[300px] h-[300px] -top-20 -right-20 opacity-10" color1="rgba(var(--accent-rgb), 0.3)" color2="rgba(168,85,247,0.15)" />
-              <div className="relative z-10">
-                <TextReveal>
-                  <p className="text-accent text-xs font-mono tracking-[0.25em] uppercase mb-4 flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-accent pulse-dot" />
-                    Career
-                  </p>
-                </TextReveal>
-                <TextReveal>
-                  <h2 className="text-2xl md:text-3xl font-bold tracking-tight mb-6">Experience</h2>
-                </TextReveal>
-
-                <div className="space-y-0 pl-2 timeline-line">
-                  {[
-                    { role: "ERP Systems Engineer II", company: "Heckler Design", period: "2024–Present", active: true },
-                    { role: "ERP Systems Engineer", company: "Heckler Design", period: "2023–2024", active: false },
-                    { role: "Manufacturing Engineer", company: "United Foods", period: "2023", active: false },
-                    { role: "Production Supervisor", company: "Vats & Vessels", period: "2020–2022", active: false },
-                  ].map((job, i) => (
-                    <SlideIn key={i} direction="left" delay={0.1 + i * 0.12}>
-                      <motion.div
-                        className="flex items-start gap-4 py-3 pl-6 rounded-lg hover:bg-surface-hover/50 transition-colors cursor-default"
-                        whileHover={{ x: 4 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        <div className={`w-3 h-3 rounded-full mt-1.5 shrink-0 ${job.active ? "bg-accent glow-pulse shadow-[0_0_12px_rgba(var(--accent-rgb),0.5)]" : "bg-border"}`} />
-                        <div>
-                          <div className="text-sm font-semibold">{job.role}</div>
-                          <div className="text-xs text-text-secondary mt-0.5">{job.company} &middot; {job.period}</div>
-                        </div>
-                      </motion.div>
-                    </SlideIn>
-                  ))}
-                </div>
-              </div>
-              <Link href="/experience" className="link-arrow text-sm text-accent hover:text-accent-hover transition-colors mt-6 relative z-10">
-                Full timeline <ArrowRight className="w-4 h-4" />
-              </Link>
-            </BentoCard>
-
-            {/* Education card */}
-            <BentoCard className="col-span-2 md:col-span-5 row-span-2 p-6 md:p-8 mesh-gradient-2" delay={0.1}>
-              <p className="text-xs text-text-secondary uppercase tracking-wider mb-4">Education</p>
-              <div className="space-y-3">
-                <div>
-                  <div className="text-sm font-semibold">MS Mechanical Engineering</div>
-                  <div className="text-xs text-text-secondary">Arizona State University &middot; GPA 3.8</div>
-                </div>
-                <div>
-                  <div className="text-sm font-semibold">B.Tech Aeronautical Engineering</div>
-                  <div className="text-xs text-text-secondary">Manipal Institute of Technology &middot; GPA 3.5</div>
-                </div>
-              </div>
-            </BentoCard>
-
-            {/* Connect card */}
-            <BentoCard className="col-span-2 md:col-span-5 row-span-1 p-6 flex items-center justify-between" delay={0.15}>
-              <div className="flex items-center gap-4">
-                <a href="https://www.linkedin.com/in/rauttanmay/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-surface-hover border border-border flex items-center justify-center hover:border-accent/30 transition-colors">
-                  <LinkedinIcon className="w-4 h-4" />
-                </a>
-                <a href="https://github.com/tanmayrautheckler" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-surface-hover border border-border flex items-center justify-center hover:border-accent/30 transition-colors">
-                  <GithubIcon className="w-4 h-4" />
-                </a>
-                <a href="https://www.instagram.com/tanmay_9825/" target="_blank" rel="noopener noreferrer" className="w-10 h-10 rounded-xl bg-surface-hover border border-border flex items-center justify-center hover:border-accent/30 transition-colors">
-                  <InstagramIcon className="w-4 h-4" />
-                </a>
-              </div>
-              <Link href="/contact" className="link-arrow text-sm text-accent hover:text-accent-hover">
-                Contact <ArrowRight className="w-4 h-4" />
-              </Link>
-            </BentoCard>
-
-          </div>
-        </section>
-      </Container>
 
       {/* ═══ VIDEO BREAK ═══ */}
       <VideoSection

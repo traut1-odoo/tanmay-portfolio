@@ -2,8 +2,13 @@
 
 # dependencies
 /node_modules
+**/node_modules
 /.pnp
 .pnp.*
+
+# Cloudflare Wrangler
+**/.wrangler/
+**/.dev.vars
 .yarn/*
 !.yarn/patches
 !.yarn/plugins

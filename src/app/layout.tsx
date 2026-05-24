@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { InteractiveEffects } from "@/components/interactive-wrapper";
+import { PageTransition } from "@/components/page-transition";
 import "./globals.css";
 
 const inter = Inter({
@@ -48,7 +49,7 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
           <Nav />
           <main className="flex-1 pt-16">
-            {children}
+            <PageTransition>{children}</PageTransition>
           </main>
           <Footer />
           <InteractiveEffects />

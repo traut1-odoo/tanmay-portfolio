@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { META as ODOO17 } from "@/data/case-studies/odoo-17/content";
 import { META as VENDOR } from "@/data/case-studies/vendor-portal/content";
+import { META as MCP } from "@/data/case-studies/mcp-cowork/content";
 
 export const metadata: Metadata = {
   title: "Case Studies — Tanmay Raut",
@@ -41,10 +42,12 @@ const ENTRIES: Entry[] = [
   },
   {
     number: "03",
-    slug: null,
-    title: "MCP-to-Odoo AI Integration",
-    subtitle: "Direct Claude → Odoo tool use via an MCP server. ERP as AI-native system of record.",
-    meta: "2026 · Heckler Design",
+    slug: "mcp-cowork",
+    title: MCP.title,
+    subtitle: MCP.subtitle,
+    meta: `${MCP.date} · Heckler Design`,
+    bigNumber: "10+",
+    bigLabel: "MCP servers · live",
   },
 ];
 

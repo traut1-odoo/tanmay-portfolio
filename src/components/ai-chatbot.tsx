@@ -37,10 +37,11 @@ export function AIChatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="absolute bottom-16 left-0 w-80 sm:w-96 bg-surface border border-border rounded-2xl shadow-2xl overflow-hidden"
+            className="absolute bottom-16 left-0 w-80 sm:w-96 bg-background border border-border rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
+            style={{ backgroundColor: "var(--background)" }}
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-surface">
+            <div className="flex items-center justify-between px-4 py-3 border-b border-border" style={{ backgroundColor: "var(--background)" }}>
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 rounded-full bg-accent/10 flex items-center justify-center">
                   <Bot className="w-4 h-4 text-accent" />
@@ -88,11 +89,16 @@ export function AIChatbot() {
                     </div>
                   )}
                   <div
-                    className={`max-w-[80%] px-3 py-2 rounded-xl text-sm ${
+                    className={`max-w-[80%] px-3 py-2 rounded-xl text-sm border ${
                       msg.role === "user"
-                        ? "bg-accent text-black rounded-br-sm"
-                        : "bg-surface-hover text-foreground rounded-bl-sm"
+                        ? "bg-accent text-black rounded-br-sm border-transparent"
+                        : "text-foreground rounded-bl-sm border-border"
                     }`}
+                    style={
+                      msg.role === "assistant"
+                        ? { backgroundColor: "var(--surface-hover)", backdropFilter: "blur(8px)" }
+                        : undefined
+                    }
                   >
                     {msg.content}
                   </div>
@@ -109,7 +115,7 @@ export function AIChatbot() {
                   <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
                     <Bot className="w-3 h-3 text-accent" />
                   </div>
-                  <div className="bg-surface-hover px-3 py-2 rounded-xl rounded-bl-sm">
+                  <div className="px-3 py-2 rounded-xl rounded-bl-sm border border-border" style={{ backgroundColor: "var(--surface-hover)" }}>
                     <motion.div className="flex gap-1">
                       {[0, 1, 2].map((i) => (
                         <motion.div

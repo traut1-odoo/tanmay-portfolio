@@ -458,15 +458,6 @@ export default function Home() {
         overlay="gradient"
       />
 
-      {/* ═══ PARALLAX BREAK — CAMPING ═══ */}
-      <ParallaxPhoto
-        src="/tanmay-portfolio/images/lifestyle/camping.jpg"
-        alt="Camping in the forest"
-        caption="Unplugged. Recalibrated."
-        height="40vh"
-        overlay="gradient"
-      />
-
       {/* ═══ CTA ═══ */}
       <Container>
         <section className="py-12 md:py-16 relative overflow-hidden">

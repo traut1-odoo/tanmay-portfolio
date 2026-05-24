@@ -66,8 +66,13 @@ function seasonOpacity(season: Season, p: number): number {
 
 export function MountainJourney() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const scrollRef = useRef(0);
   const [progress, setProgress] = useState(0);
+  // Sprite frame advances with distance traveled along path — locks walk
+  // cycle to scroll, not wall clock.
+  const [spriteFrame, setSpriteFrame] = useState(0);
+  // Stationary detector — freezes sprite on idle frame when scroll velocity
+  // drops to ~0 (user stopped scrolling).
+  const [isMoving, setIsMoving] = useState(false);
 
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -75,23 +80,49 @@ export function MountainJourney() {
   });
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
-    scrollRef.current = v;
+    setProgress(v);
   });
 
-  // Smoothed progress for HUD + character position (lerps toward scrollRef)
+  // Tight lerp + distance-driven frame stepping in single RAF.
+  // Pure scroll-driven — no wall-clock animation.
   useEffect(() => {
     let raf = 0;
-    // Initialize smoothed at the framer-motion value (not scrollRef.current,
-    // which only updates on `change` events and is 0 on mount). This avoids
-    // a flash of the base-camp HUD on reload at mid-section.
     let smoothed = scrollYProgress.get();
-    scrollRef.current = smoothed;
+    let lastPathPt = pathPointAt(smoothed);
+    let distAccum = 0;
+    let stillCounter = 0;
+    const FRAME_DIST = 22; // path-px per sprite frame step
+
     setProgress(smoothed);
+
     const tick = () => {
       const target = scrollYProgress.get();
-      scrollRef.current = target;
-      smoothed += (target - smoothed) * 0.12;
+      const delta = target - smoothed;
+      // Tight follow — 0.35 factor (was 0.12, too laggy)
+      smoothed += delta * 0.35;
       setProgress(smoothed);
+
+      // Distance traveled along path since last tick
+      const cur = pathPointAt(smoothed);
+      const dx = cur.x - lastPathPt.x;
+      const dy = cur.y - lastPathPt.y;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      distAccum += d;
+      lastPathPt = cur;
+
+      // Step sprite frame when enough distance accumulated
+      if (distAccum >= FRAME_DIST) {
+        const steps = Math.floor(distAccum / FRAME_DIST);
+        distAccum -= steps * FRAME_DIST;
+        setSpriteFrame((f) => (f + steps) % SPRITE_FRAMES);
+        stillCounter = 0;
+        setIsMoving(true);
+      } else if (Math.abs(delta) < 0.0002) {
+        // Scroll essentially stopped — count frames
+        stillCounter++;
+        if (stillCounter > 8) setIsMoving(false);
+      }
+
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -125,8 +156,11 @@ export function MountainJourney() {
   const charX = (pathPt.x / 1920) * 100;
   const charY = (pathPt.y / 1080) * 100;
 
-  // Pause sprite walk animation when character is near a checkpoint
+  // Pause sprite walk when at checkpoint OR scroll halted
   const nearCheckpoint = CHECKPOINTS.some((cp) => Math.abs(charT - cp.t) < 0.018);
+  const idle = nearCheckpoint || !isMoving;
+  // Idle pose = frame 0 (standing). Walking = current frame index.
+  const displayFrame = idle ? 0 : spriteFrame;
 
   // Path stroke progress (% drawn behind character)
   const pathProgress = Math.max(0, Math.min(1, progress)) * 100;
@@ -188,36 +222,29 @@ export function MountainJourney() {
           />
         </svg>
 
-        {/* ═══ LAYER 3: Watercolor sprite-sheet hiker (matches Ghibli backgrounds) ═══ */}
+        {/* ═══ LAYER 3: Watercolor sprite-sheet hiker — scroll-locked frame stepping ═══ */}
         <div
           className="absolute pointer-events-none z-20"
           style={{
             left: `${charX}%`,
             top: `${charY}%`,
             transform: "translate(-50%, -90%)",
-            transition: "left 0.22s ease-out, top 0.22s ease-out",
             width: SPRITE_WIDTH,
             height: SPRITE_HEIGHT,
             filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.45))",
           }}
         >
           <div
-            className="hiker-sprite"
             style={{
               width: SPRITE_WIDTH,
               height: SPRITE_HEIGHT,
               backgroundImage: `url(/tanmay-portfolio/images/journey/hiker-sprite.png)`,
               backgroundSize: `${SPRITE_WIDTH * SPRITE_FRAMES}px ${SPRITE_HEIGHT}px`,
               backgroundRepeat: "no-repeat",
+              backgroundPosition: `${-displayFrame * SPRITE_WIDTH}px 0px`,
               imageRendering: "auto",
-              animationName: "hiker-walk",
-              animationDuration: "0.9s",
-              animationTimingFunction: `steps(${SPRITE_FRAMES})`,
-              animationIterationCount: "infinite",
-              animationPlayState: nearCheckpoint ? "paused" : "running",
             }}
           />
-          {/* Keyframes for hiker-walk are defined in globals.css */}
         </div>
 
         {/* ═══ LAYER 4: Checkpoint anchor dots in world-space ═══ */}

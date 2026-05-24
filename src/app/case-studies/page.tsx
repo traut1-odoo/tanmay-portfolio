@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { META as ODOO17 } from "@/data/case-studies/odoo-17/content";
+import { META as VENDOR } from "@/data/case-studies/vendor-portal/content";
 
 export const metadata: Metadata = {
   title: "Case Studies — Tanmay Raut",
@@ -31,10 +32,12 @@ const ENTRIES: Entry[] = [
   },
   {
     number: "02",
-    slug: null,
-    title: "AEI Vendor Management Portal",
-    subtitle: "Replacing a spreadsheet with a full supplier-relationship portal, Odoo as sole data store.",
-    meta: "2025 · Heckler Design",
+    slug: "vendor-portal",
+    title: VENDOR.title,
+    subtitle: VENDOR.subtitle,
+    meta: `${VENDOR.date} · Heckler Design`,
+    bigNumber: "8,441",
+    bigLabel: "Rows → portal",
   },
   {
     number: "03",

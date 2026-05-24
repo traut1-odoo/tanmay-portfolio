@@ -530,3 +530,63 @@ html { scroll-behavior: smooth; }
   from { background-position: 0 0; }
   to   { background-position: -360px 0; }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   BRACKETED LINK — Rauno-style [link] hover state
+   Apply `.bracket-link` to any anchor. Brackets fade in on hover
+   ═══════════════════════════════════════════════════════════ */
+.bracket-link {
+  position: relative;
+  display: inline-block;
+  transition: padding 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.bracket-link::before,
+.bracket-link::after {
+  position: absolute;
+  top: 0;
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  font-family: var(--font-mono), monospace;
+}
+.bracket-link::before {
+  content: "[";
+  left: 0;
+  transform: translateX(2px);
+}
+.bracket-link::after {
+  content: "]";
+  right: 0;
+  transform: translateX(-2px);
+}
+.bracket-link:hover {
+  padding-left: 0.6em;
+  padding-right: 0.6em;
+}
+.bracket-link:hover::before,
+.bracket-link:hover::after {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SKELETON SHIMMER
+   ═══════════════════════════════════════════════════════════ */
+@keyframes skeleton-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.04) 0%,
+    rgba(255,255,255,0.10) 20%,
+    rgba(14,187,255,0.12) 50%,
+    rgba(255,255,255,0.10) 80%,
+    rgba(255,255,255,0.04) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.8s linear infinite;
+  border-radius: 0.75rem;
+}

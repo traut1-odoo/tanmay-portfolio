@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { useRef, useState, useEffect } from "react";
-import { ArrowRight, ArrowUpRight, MapPin, Briefcase, Plane, Trophy, TrendingUp, Lightbulb, BookOpen } from "lucide-react";
+import { ArrowRight, ArrowUpRight, MapPin, Briefcase, Plane, Trophy, TrendingUp, Lightbulb, BookOpen, Layers, Crown, Calendar, Building2 } from "lucide-react";
 import { SectionReveal, StaggerContainer, StaggerItem } from "@/components/section-reveal";
 import { InstagramIcon, LinkedinIcon, GithubIcon } from "@/components/social-icons";
 import { TechLogos } from "@/components/tech-logos";
@@ -18,20 +18,40 @@ import { projects } from "@/data/projects";
 
 const HeroScene = dynamic(() => import("@/components/hero-scene").then(mod => ({ default: mod.HeroScene })), {
   ssr: false,
+  loading: () => (
+    <div className="absolute inset-0 z-0 opacity-90 overflow-hidden">
+      {/* Animated skeleton orbs that mimic the 3D scene before it loads */}
+      <div className="skeleton absolute -top-20 -right-20 w-[400px] h-[400px] rounded-full opacity-40" />
+      <div className="skeleton absolute bottom-0 left-0 w-[300px] h-[300px] rounded-full opacity-30" />
+      <div className="skeleton absolute top-1/2 left-1/3 w-[200px] h-[200px] rounded-full opacity-20" />
+    </div>
+  ),
 });
 
 const MountainJourney = dynamic(
   () => import("@/components/mountain-journey").then(mod => ({ default: mod.MountainJourney })),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => (
+      <div className="relative" style={{ height: "500vh" }}>
+        <div className="sticky top-0 h-screen bg-slate-900 flex items-center justify-center overflow-hidden">
+          <div className="text-center">
+            <div className="skeleton w-64 h-8 mb-4 mx-auto" />
+            <div className="skeleton w-48 h-4 mx-auto opacity-60" />
+          </div>
+        </div>
+      </div>
+    ),
+  }
 );
 
 const featuredProjects = projects.filter((p) => p.featured);
 
 const stats = [
-  { value: "20+", label: "Systems Designed" },
-  { value: "1", label: "ERP Owner" },
-  { value: "3+", label: "Years in ERP" },
-  { value: "8", label: "Depts Managed" },
+  { value: "20+", label: "Systems Designed", icon: Layers, context: "Modules · portals · dashboards" },
+  { value: "1", label: "ERP Owner", icon: Crown, context: "Sole platform accountability" },
+  { value: "3+", label: "Years in ERP", icon: Calendar, context: "Daily Odoo since 2023" },
+  { value: "8", label: "Departments", icon: Building2, context: "Mfg → finance → ops → sales" },
 ];
 
 const interests = [
@@ -249,11 +269,13 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Stats row — 4 cards with animated counters */}
+            {/* Stats row — 4 cards: icon + counter + label + context */}
             {stats.map((stat, i) => (
-              <BentoCard key={stat.label} className="col-span-1 md:col-span-3 row-span-1 p-4 md:p-6 flex flex-col items-center justify-center" delay={0.2 + i * 0.05}>
+              <BentoCard key={stat.label} className="col-span-1 md:col-span-3 row-span-1 p-3 md:p-5 flex flex-col items-center justify-center gap-1" delay={0.2 + i * 0.05}>
+                <stat.icon className="w-3.5 h-3.5 text-accent/70" />
                 <AnimatedCounter target={stat.value} />
-                <div className="text-[10px] md:text-xs text-text-secondary uppercase tracking-wider mt-0.5 text-center">{stat.label}</div>
+                <div className="text-[10px] md:text-[11px] text-foreground uppercase tracking-wider text-center font-semibold leading-tight">{stat.label}</div>
+                <div className="text-[9px] md:text-[10px] text-text-secondary/70 text-center leading-tight px-1">{stat.context}</div>
               </BentoCard>
             ))}
 

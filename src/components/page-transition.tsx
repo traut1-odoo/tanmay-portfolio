@@ -8,10 +8,22 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { usePathname } from "next/navigation";
-import { type ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
+import { useSound } from "@/hooks/use-sound";
 
 export function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const firstRender = useRef(true);
+  const { play } = useSound();
+
+  // Play whoosh on route change (skip first paint)
+  useEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false;
+      return;
+    }
+    play("whoosh");
+  }, [pathname, play]);
 
   return (
     <AnimatePresence mode="wait" initial={false}>

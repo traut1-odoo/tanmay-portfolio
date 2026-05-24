@@ -1,5 +1,5 @@
-import { Mail } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "./social-icons";
+import { CopyEmail } from "./copy-email";
 
 export function Footer() {
   return (
@@ -27,13 +27,7 @@ export function Footer() {
           >
             <LinkedinIcon className="w-5 h-5" />
           </a>
-          <a
-            href="mailto:tanmay.rautwork@gmail.com"
-            className="text-text-secondary hover:text-accent transition-colors"
-            aria-label="Email"
-          >
-            <Mail className="w-5 h-5" />
-          </a>
+          <CopyEmail variant="icon" />
         </div>
       </div>
     </footer>

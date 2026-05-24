@@ -3,8 +3,8 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import Image from "next/image";
-import { motion } from "framer-motion";
-import { useRef, useState } from "react";
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
+import { useRef, useState, useEffect } from "react";
 import { ArrowRight, ArrowUpRight, MapPin, Briefcase, Plane, Trophy, TrendingUp, Lightbulb, BookOpen } from "lucide-react";
 import { SectionReveal, StaggerContainer, StaggerItem } from "@/components/section-reveal";
 import { InstagramIcon, LinkedinIcon, GithubIcon } from "@/components/social-icons";
@@ -93,8 +93,63 @@ function Container({ children, className = "" }: { children: React.ReactNode; cl
   return <div className={`max-w-7xl mx-auto px-4 md:px-6 ${className}`}>{children}</div>;
 }
 
+// Cinematic char-reveal — letters fly in from below w/ blur sharpening to focus.
+function CharRevealCinematic({ text, className, delay = 0 }: { text: string; className?: string; delay?: number }) {
+  return (
+    <span className={`inline-block ${className || ""}`}>
+      {text.split("").map((ch, i) => (
+        <motion.span
+          key={i}
+          className="inline-block"
+          initial={{ opacity: 0, y: 40, filter: "blur(12px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{
+            duration: 0.9,
+            delay: delay + i * 0.05,
+            ease: [0.16, 1, 0.3, 1],
+          }}
+        >
+          {ch === " " ? " " : ch}
+        </motion.span>
+      ))}
+    </span>
+  );
+}
+
+
 export default function Home() {
   const heroRef = useRef<HTMLDivElement>(null);
+
+  // Scroll-linked hero scene exit — scale + blur + fade as user scrolls past hero
+  const { scrollYProgress: heroScrollY } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroSceneScale = useTransform(heroScrollY, [0, 1], [1, 0.82]);
+  const heroSceneBlur = useTransform(heroScrollY, [0, 1], [0, 8]);
+  const heroSceneBlurStr = useTransform(heroSceneBlur, (v) => `blur(${v}px)`);
+  const heroSceneOpacity = useTransform(heroScrollY, [0, 0.85], [1, 0]);
+
+  // Cursor-following glow orb — follows mouse across the hero card
+  const mouseX = useMotionValue(50);
+  const mouseY = useMotionValue(50);
+  const orbX = useSpring(mouseX, { stiffness: 80, damping: 18 });
+  const orbY = useSpring(mouseY, { stiffness: 80, damping: 18 });
+
+  useEffect(() => {
+    const card = heroRef.current;
+    if (!card) return;
+    const onMove = (e: MouseEvent) => {
+      const r = card.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width) * 100;
+      const y = ((e.clientY - r.top) / r.height) * 100;
+      mouseX.set(x);
+      mouseY.set(y);
+    };
+    card.addEventListener("mousemove", onMove);
+    return () => card.removeEventListener("mousemove", onMove);
+  }, [mouseX, mouseY]);
+
   return (
     <>
       {/* ═══ HERO BENTO GRID ═══ */}
@@ -112,16 +167,57 @@ export default function Home() {
               className="col-span-4 md:col-span-8 row-span-3 relative rounded-3xl overflow-hidden p-8 md:p-12 flex flex-col justify-end"
               style={{ background: "#0a0a0f", border: "1px solid #1d1d1f" }}
             >
-              <HeroScene />
+              {/* 3D scene — scroll-linked scale/blur/fade exit */}
+              <motion.div
+                className="absolute inset-0 z-0"
+                style={{
+                  scale: heroSceneScale,
+                  filter: heroSceneBlurStr,
+                  opacity: heroSceneOpacity,
+                }}
+              >
+                <HeroScene />
+              </motion.div>
               <div className="glow-orb w-[400px] h-[400px] bg-accent/20 -top-20 -right-20" />
               <div className="glow-orb w-[300px] h-[300px] bg-purple-500/15 bottom-0 left-0" />
+
+              {/* Cursor-following glow orb */}
+              <motion.div
+                aria-hidden
+                className="pointer-events-none absolute z-[1] rounded-full"
+                style={{
+                  left: orbX,
+                  top: orbY,
+                  width: "32vh",
+                  height: "32vh",
+                  translateX: "-50%",
+                  translateY: "-50%",
+                  background:
+                    "radial-gradient(circle, rgba(14,187,255,0.18) 0%, rgba(168,85,247,0.10) 40%, transparent 70%)",
+                  filter: "blur(20px)",
+                  mixBlendMode: "screen",
+                  transform: "translate(-50%, -50%)",
+                  transformOrigin: "center",
+                }}
+              />
+
               <div className="relative z-10">
                 <p className="text-accent text-xs font-mono tracking-[0.25em] uppercase mb-4 flex items-center gap-2">
                   <span className="w-2 h-2 rounded-full bg-accent pulse-dot" />
                   <TextScramble words={["Systems Architect", "ERP Strategist", "Process Designer", "Manufacturing Tech"]} />
                 </p>
                 <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-[-0.03em] leading-[0.9] mb-4">
-                  <span className="bg-gradient-to-r from-cyan-400 via-violet-400 to-pink-400 bg-clip-text text-transparent">Tanmay</span> <span className="text-white">Raut</span>
+                  <motion.span
+                    className="gradient-text animated-gradient inline-block"
+                    initial={{ opacity: 0, y: 40, filter: "blur(12px)" }}
+                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                    transition={{ duration: 0.9, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+                  >
+                    Tanmay
+                  </motion.span>{" "}
+                  <span className="text-white">
+                    <CharRevealCinematic text="Raut" delay={0.5} />
+                  </span>
                 </h1>
                 <p className="text-gray-400 text-base md:text-lg max-w-md leading-relaxed">
                   I design how manufacturing businesses run through their systems.
@@ -155,7 +251,7 @@ export default function Home() {
 
             {/* Stats row — 4 cards with animated counters */}
             {stats.map((stat, i) => (
-              <BentoCard key={stat.label} className="col-span-1 md:col-span-3 row-span-1 p-4 md:p-6 flex items-center justify-center" delay={0.2 + i * 0.05}>
+              <BentoCard key={stat.label} className="col-span-1 md:col-span-3 row-span-1 p-4 md:p-6 flex flex-col items-center justify-center" delay={0.2 + i * 0.05}>
                 <AnimatedCounter target={stat.value} />
                 <div className="text-[10px] md:text-xs text-text-secondary uppercase tracking-wider mt-0.5 text-center">{stat.label}</div>
               </BentoCard>

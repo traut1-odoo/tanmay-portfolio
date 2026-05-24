@@ -521,3 +521,12 @@ html { scroll-behavior: smooth; }
     stroke-dashoffset: 0;
   }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   JOURNEY TO THE SUMMIT — hiker sprite walking cycle
+   ═══════════════════════════════════════════════════════════ */
+/* Sprite is 6 frames × 60px = 360px total displayed width */
+@keyframes hiker-walk {
+  from { background-position: 0 0; }
+  to   { background-position: -360px 0; }
+}

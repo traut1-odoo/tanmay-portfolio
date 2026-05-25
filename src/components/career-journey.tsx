@@ -1,7 +1,7 @@
 "use client";
 
 import { Canvas, useFrame, useThree, extend } from "@react-three/fiber";
-import { OrbitControls, Sphere, Html, shaderMaterial } from "@react-three/drei";
+import { OrbitControls, Sphere, Html, shaderMaterial, useTexture } from "@react-three/drei";
 import { useRef, useState, Suspense, useMemo, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import * as THREE from "three";
@@ -537,40 +537,104 @@ function CameraController({ target, isTouring }: { target: THREE.Vector3 | null;
 }
 
 // ─── Earth Globe ───────────────────────────────────────────
+// ─── Photo-real Earth (NASA Blue Marble textures) ──────────
 function EarthGlobe() {
-  const meshRef = useRef<THREE.Mesh>(null);
-  useFrame(({ clock }) => {
-    if (meshRef.current) {
-      const mat = meshRef.current.material as THREE.ShaderMaterial & { uniforms: { uTime: { value: number } } };
-      if (mat.uniforms?.uTime) mat.uniforms.uTime.value = clock.getElapsedTime();
-    }
-  });
-
+  const [dayMap, nightMap, specularMap] = useTexture([
+    "/tanmay-portfolio/textures/earth-day.jpg",
+    "/tanmay-portfolio/textures/earth-night.png",
+    "/tanmay-portfolio/textures/earth-specular.png",
+  ]);
   return (
-    <mesh ref={meshRef}>
-      <sphereGeometry args={[2, 128, 64]} />
-      {/* @ts-ignore */}
-      <earthMaterial />
+    <>
+      {/* Daylit Earth — diffuse + specular */}
+      <mesh>
+        <sphereGeometry args={[2, 128, 64]} />
+        <meshStandardMaterial
+          map={dayMap}
+          roughnessMap={specularMap}
+          roughness={0.85}
+          metalness={0.05}
+        />
+      </mesh>
+      {/* Night-side city lights — additive layer, dim on lit side */}
+      <mesh>
+        <sphereGeometry args={[2.001, 128, 64]} />
+        <meshBasicMaterial
+          map={nightMap}
+          transparent
+          blending={THREE.AdditiveBlending}
+          depthWrite={false}
+          opacity={0.65}
+        />
+      </mesh>
+    </>
+  );
+}
+
+// ─── Atmospheric Halo (Fresnel rim-light) ───────────────────
+// Larger transparent sphere with custom shader — sky-scatter glow at edges,
+// invisible at center. Sits just outside Earth.
+function AtmosphereHalo() {
+  return (
+    <mesh scale={1.08}>
+      <sphereGeometry args={[2, 64, 32]} />
+      <shaderMaterial
+        transparent
+        depthWrite={false}
+        blending={THREE.AdditiveBlending}
+        side={THREE.BackSide}
+        uniforms={{
+          uColor: { value: new THREE.Color("#0EBBFF") },
+          uIntensity: { value: 1.4 },
+        }}
+        vertexShader={`
+          varying vec3 vNormal;
+          varying vec3 vViewDir;
+          void main() {
+            vec4 worldPos = modelMatrix * vec4(position, 1.0);
+            vNormal = normalize(normalMatrix * normal);
+            vViewDir = normalize(cameraPosition - worldPos.xyz);
+            gl_Position = projectionMatrix * viewMatrix * worldPos;
+          }
+        `}
+        fragmentShader={`
+          uniform vec3 uColor;
+          uniform float uIntensity;
+          varying vec3 vNormal;
+          varying vec3 vViewDir;
+          void main() {
+            float rim = 1.0 - max(dot(vNormal, vViewDir), 0.0);
+            rim = pow(rim, 2.8);
+            vec3 col = mix(uColor, vec3(0.6, 0.85, 1.0), rim * 0.5);
+            gl_FragColor = vec4(col * rim * uIntensity, rim);
+          }
+        `}
+      />
     </mesh>
   );
 }
 
-// ─── Cloud Layer ───────────────────────────────────────────
+// ─── Cloud Layer (real NASA cloud texture) ─────────────────
 function CloudLayer() {
   const meshRef = useRef<THREE.Mesh>(null);
+  const cloudMap = useTexture("/tanmay-portfolio/textures/earth-clouds.jpg");
+
   useFrame(({ clock }) => {
     if (meshRef.current) {
-      meshRef.current.rotation.y = clock.getElapsedTime() * 0.006;
-      const mat = meshRef.current.material as THREE.ShaderMaterial & { uniforms: { uTime: { value: number } } };
-      if (mat.uniforms?.uTime) mat.uniforms.uTime.value = clock.getElapsedTime();
+      meshRef.current.rotation.y = clock.getElapsedTime() * 0.008;
     }
   });
 
   return (
     <mesh ref={meshRef}>
-      <sphereGeometry args={[2.04, 64, 32]} />
-      {/* @ts-ignore */}
-      <cloudMaterial transparent depthWrite={false} side={THREE.FrontSide} />
+      <sphereGeometry args={[2.05, 96, 48]} />
+      <meshStandardMaterial
+        map={cloudMap}
+        alphaMap={cloudMap}
+        transparent
+        depthWrite={false}
+        opacity={0.55}
+      />
     </mesh>
   );
 }
@@ -614,9 +678,10 @@ function GlobeScene({ activeIndex, onMarkerClick, selectedLoc, onLocSelect, isTo
     <>
       <CameraController target={tourTarget} isTouring={isTouring} />
       <group ref={globeRef}>
-        {/* Realistic Earth */}
+        {/* Realistic Earth + atmospheric halo */}
         <EarthGlobe />
         <CloudLayer />
+        <AtmosphereHalo />
 
 
         {/* Glowing arcs */}
@@ -801,13 +866,23 @@ export function CareerJourney() {
       </AnimatePresence>
 
       {/* 3D Globe */}
-      <div className="h-[500px] md:h-[600px] relative cursor-grab active:cursor-grabbing">
+      <div className="h-[600px] md:h-[760px] relative cursor-grab active:cursor-grabbing">
+        {/* Vignette ring — soft dark fade around viewport */}
+        <div
+          className="absolute inset-0 pointer-events-none z-10"
+          style={{
+            background:
+              "radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.45) 100%)",
+          }}
+        />
         <Canvas camera={{ position: [0, 1.5, 5], fov: 42 }} dpr={[1, 2]} frameloop="always" gl={{ antialias: true, alpha: true }}>
           <Suspense fallback={null}>
-            <ambientLight intensity={0.15} />
-            <directionalLight position={[5, 3, 5]} intensity={0.6} color="#ffffff" />
-            <pointLight position={[-5, -3, -5]} intensity={0.3} color="#a855f7" />
-            <pointLight position={[3, 2, -3]} intensity={0.4} color="#0EBBFF" />
+            {/* Cinematic 3-point lighting */}
+            <ambientLight intensity={0.18} />
+            <directionalLight position={[5, 3, 5]} intensity={1.1} color="#ffeed8" castShadow />
+            <directionalLight position={[-4, 2, -3]} intensity={0.35} color="#8ab4ff" />
+            <pointLight position={[-5, -3, -5]} intensity={0.4} color="#a855f7" />
+            <pointLight position={[3, 2, -3]} intensity={0.5} color="#0EBBFF" />
             <Stars />
             <NebulaRing />
             <GlobeScene
@@ -824,7 +899,8 @@ export function CareerJourney() {
               maxDistance={8}
               minPolarAngle={Math.PI / 6}
               maxPolarAngle={Math.PI / 1.3}
-              autoRotate={false}
+              autoRotate={!isTouring && !selectedLoc}
+              autoRotateSpeed={0.35}
               rotateSpeed={0.5}
               zoomSpeed={0.5}
               enabled={!isTouring}

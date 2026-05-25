@@ -125,8 +125,11 @@ export function EditorialHero() {
           }}
           className="absolute inset-0 flex items-end justify-center pointer-events-none z-20"
         >
-          {/* Mouse-Y parallax wrapper */}
-          <motion.div style={{ y: photoOffsetY }} className="relative h-[78%] max-h-[780px] aspect-square">
+          {/* Mouse-Y parallax wrapper — 2:3 aspect for full-body portrait */}
+          <motion.div
+            style={{ y: photoOffsetY, aspectRatio: "2 / 3" }}
+            className="relative h-[92%] max-h-[880px]"
+          >
           <motion.div
             initial={{ opacity: 0, y: 80, scale: 0.92 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -165,7 +168,7 @@ export function EditorialHero() {
           </p>
           <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold tracking-[-0.02em] leading-[0.95]">
             <span className="gradient-text animated-gradient inline-block">
-              manufacturing runs.
+              businesses run.
             </span>
           </h2>
           <p className="mt-3 text-xs md:text-sm font-mono text-text-secondary flex items-center gap-2">

@@ -103,19 +103,20 @@ function AvalaraIcon({ className }: { className?: string }) {
   );
 }
 
+// Real brand colors per tech (applied on hover; rest = monochrome)
 const technologies = [
-  { name: "Odoo", icon: OdooIcon },
-  { name: "Shopify", icon: ShopifyIcon },
-  { name: "Stripe", icon: StripeIcon },
-  { name: "ShipStation", icon: ShipStationIcon },
-  { name: "Next.js", icon: NextjsIcon },
-  { name: "Python", icon: PythonIcon },
-  { name: "PostgreSQL", icon: PostgresqlIcon },
-  { name: "Claude AI", icon: ClaudeIcon },
-  { name: "Avalara", icon: AvalaraIcon },
-  { name: "TypeScript", icon: TypeScriptIcon },
-  { name: "Tailwind", icon: TailwindIcon },
-  { name: "React", icon: ReactIcon },
+  { name: "Odoo", icon: OdooIcon, color: "#714B67" },
+  { name: "Shopify", icon: ShopifyIcon, color: "#95BF47" },
+  { name: "Stripe", icon: StripeIcon, color: "#635BFF" },
+  { name: "ShipStation", icon: ShipStationIcon, color: "#00BCEB" },
+  { name: "Next.js", icon: NextjsIcon, color: "#FFFFFF" },
+  { name: "Python", icon: PythonIcon, color: "#3776AB" },
+  { name: "PostgreSQL", icon: PostgresqlIcon, color: "#336791" },
+  { name: "Claude AI", icon: ClaudeIcon, color: "#CC785C" },
+  { name: "Avalara", icon: AvalaraIcon, color: "#FF6B00" },
+  { name: "TypeScript", icon: TypeScriptIcon, color: "#3178C6" },
+  { name: "Tailwind", icon: TailwindIcon, color: "#06B6D4" },
+  { name: "React", icon: ReactIcon, color: "#61DAFB" },
 ];
 
 export function TechLogos() {
@@ -130,9 +131,12 @@ export function TechLogos() {
         {items.map((tech, i) => (
           <div
             key={`${tech.name}-${i}`}
-            className="flex flex-col items-center gap-2 flex-shrink-0 group transition-all duration-300"
+            className="tech-logo flex flex-col items-center gap-2 flex-shrink-0 group transition-all duration-300"
+            style={{ "--brand": tech.color } as React.CSSProperties}
           >
-            <tech.icon className="h-7 w-7 text-foreground opacity-25 group-hover:opacity-60 transition-opacity duration-300" />
+            <span style={{ color: tech.color, display: "inline-flex" }} className="transition-transform duration-300 group-hover:scale-125">
+              <tech.icon className="h-8 w-8" />
+            </span>
             <span className="font-mono text-[9px] text-text-secondary/60 uppercase tracking-[0.15em] group-hover:text-text-secondary transition-colors duration-300">
               {tech.name}
             </span>

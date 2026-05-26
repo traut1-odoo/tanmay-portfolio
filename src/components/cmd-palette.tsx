@@ -35,7 +35,7 @@ import {
 import { LinkedinIcon, GithubIcon } from "@/components/social-icons";
 import { projects } from "@/data/projects";
 
-const RESUME_URL = "/tanmay-portfolio/resume.pdf";
+const RESUME_URL = "/resume.pdf";
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);

@@ -1,8 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  output: "export",
-  basePath: "/tanmay-portfolio",
   images: {
     unoptimized: true,
     remotePatterns: [

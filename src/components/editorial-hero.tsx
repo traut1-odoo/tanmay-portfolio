@@ -145,7 +145,7 @@ export function EditorialHero() {
               }}
             />
             <Image
-              src="/tanmay-portfolio/images/headshot-cutout.png"
+              src="/images/headshot-cutout.png"
               alt="Tanmay Raut"
               fill
               priority

@@ -32,7 +32,7 @@ const locations: Location[] = [
   { name: "Colorado", lat: 39.74, lng: -104.99, type: "travel-us", color: "#22c55e", blurb: "Mountain adventures" },
   { name: "Idaho", lat: 43.62, lng: -114.74, type: "travel-us", color: "#22c55e" },
   { name: "Wyoming", lat: 44.43, lng: -110.59, type: "travel-us", color: "#22c55e", blurb: "Yellowstone magic" },
-  { name: "Utah", lat: 38.57, lng: -109.55, type: "travel-us", color: "#22c55e", blurb: "Monument Valley sunsets", photo: "/tanmay-portfolio/images/lifestyle/camping.jpg" },
+  { name: "Utah", lat: 38.57, lng: -109.55, type: "travel-us", color: "#22c55e", blurb: "Monument Valley sunsets", photo: "/images/lifestyle/camping.jpg" },
   { name: "New Jersey", lat: 40.06, lng: -74.41, type: "travel-us", color: "#22c55e" },
   { name: "New York", lat: 40.71, lng: -74.01, type: "travel-us", color: "#22c55e", blurb: "The city that never sleeps" },
   { name: "Massachusetts", lat: 42.36, lng: -71.06, type: "travel-us", color: "#22c55e" },
@@ -40,7 +40,7 @@ const locations: Location[] = [
   { name: "Washington DC", lat: 38.91, lng: -77.04, type: "travel-us", color: "#22c55e" },
   { name: "Virginia", lat: 37.43, lng: -79.14, type: "travel-us", color: "#22c55e" },
   { name: "Maryland", lat: 39.29, lng: -76.61, type: "travel-us", color: "#22c55e" },
-  { name: "California", lat: 37.77, lng: -122.42, type: "travel-us", color: "#22c55e", blurb: "LA skyline views", photo: "/tanmay-portfolio/images/lifestyle/la-skyline.jpg" },
+  { name: "California", lat: 37.77, lng: -122.42, type: "travel-us", color: "#22c55e", blurb: "LA skyline views", photo: "/images/lifestyle/la-skyline.jpg" },
   { name: "Nevada", lat: 36.17, lng: -115.14, type: "travel-us", color: "#22c55e", blurb: "Vegas lights" },
   { name: "India", lat: 20.59, lng: 78.96, type: "travel-intl", color: "#a855f7", flag: "🇮🇳", blurb: "Home" },
   { name: "France", lat: 48.86, lng: 2.35, type: "travel-intl", color: "#a855f7", flag: "🇫🇷", blurb: "Oui oui" },
@@ -50,7 +50,7 @@ const locations: Location[] = [
   { name: "Belgium", lat: 50.85, lng: 4.35, type: "travel-intl", color: "#a855f7", flag: "🇧🇪", blurb: "Chocolate & waffles" },
   { name: "Netherlands", lat: 52.37, lng: 4.90, type: "travel-intl", color: "#a855f7", flag: "🇳🇱", blurb: "Canals & culture" },
   { name: "UK", lat: 51.51, lng: -0.13, type: "travel-intl", color: "#a855f7", flag: "🇬🇧", blurb: "Across the pond" },
-  { name: "Iceland", lat: 64.13, lng: -21.90, type: "travel-intl", color: "#a855f7", flag: "🇮🇸", blurb: "Northern lights", photo: "/tanmay-portfolio/images/lifestyle/northern-lights.jpg" },
+  { name: "Iceland", lat: 64.13, lng: -21.90, type: "travel-intl", color: "#a855f7", flag: "🇮🇸", blurb: "Northern lights", photo: "/images/lifestyle/northern-lights.jpg" },
 ];
 
 function latLngToVec3(lat: number, lng: number, r: number): THREE.Vector3 {
@@ -540,9 +540,9 @@ function CameraController({ target, isTouring }: { target: THREE.Vector3 | null;
 // ─── Photo-real Earth (NASA Blue Marble textures) ──────────
 function EarthGlobe() {
   const [dayMap, nightMap, specularMap] = useTexture([
-    "/tanmay-portfolio/textures/earth-day.jpg",
-    "/tanmay-portfolio/textures/earth-night.png",
-    "/tanmay-portfolio/textures/earth-specular.png",
+    "/textures/earth-day.jpg",
+    "/textures/earth-night.png",
+    "/textures/earth-specular.png",
   ]);
   return (
     <>
@@ -617,7 +617,7 @@ function AtmosphereHalo() {
 // ─── Cloud Layer (real NASA cloud texture) ─────────────────
 function CloudLayer() {
   const meshRef = useRef<THREE.Mesh>(null);
-  const cloudMap = useTexture("/tanmay-portfolio/textures/earth-clouds.jpg");
+  const cloudMap = useTexture("/textures/earth-clouds.jpg");
 
   useFrame(({ clock }) => {
     if (meshRef.current) {

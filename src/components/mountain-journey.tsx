@@ -32,7 +32,7 @@ const SPRITE_FRAMES = 6;
 const SPRITE_WIDTH = 60; // displayed frame width in px
 const SPRITE_HEIGHT = 102; // displayed frame height in px (preserves 236:400 aspect)
 
-const BASE_PATH = "/tanmay-portfolio/images/journey";
+const BASE_PATH = "/images/journey";
 
 const SEASONS: Season[] = ["spring", "summer", "autumn", "winter"];
 const SEASON_LABELS: Record<Season, string> = {
@@ -238,7 +238,7 @@ export function MountainJourney() {
             style={{
               width: SPRITE_WIDTH,
               height: SPRITE_HEIGHT,
-              backgroundImage: `url(/tanmay-portfolio/images/journey/hiker-sprite.png)`,
+              backgroundImage: `url(/images/journey/hiker-sprite.png)`,
               backgroundSize: `${SPRITE_WIDTH * SPRITE_FRAMES}px ${SPRITE_HEIGHT}px`,
               backgroundRepeat: "no-repeat",
               backgroundPosition: `${-displayFrame * SPRITE_WIDTH}px 0px`,

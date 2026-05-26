@@ -27,12 +27,12 @@ const barSkills = [
 ];
 
 const photoStrip = [
-  { src: "/tanmay-portfolio/images/lifestyle/skydiving.jpg", alt: "Skydiving" },
-  { src: "/tanmay-portfolio/images/lifestyle/camping.jpg", alt: "Camping" },
-  { src: "/tanmay-portfolio/images/lifestyle/bmw.jpg", alt: "Road Trips" },
-  { src: "/tanmay-portfolio/images/lifestyle/northern-lights.jpg", alt: "Glamping" },
+  { src: "/images/lifestyle/skydiving.jpg", alt: "Skydiving" },
+  { src: "/images/lifestyle/camping.jpg", alt: "Camping" },
+  { src: "/images/lifestyle/bmw.jpg", alt: "Road Trips" },
+  { src: "/images/lifestyle/northern-lights.jpg", alt: "Glamping" },
   { src: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=300&q=80", alt: "Hiking" },
-  { src: "/tanmay-portfolio/images/lifestyle/la-skyline.jpg", alt: "Exploring" },
+  { src: "/images/lifestyle/la-skyline.jpg", alt: "Exploring" },
 ];
 
 // Random facts removed — replaced by interactive story cards
@@ -144,7 +144,7 @@ export default function About() {
             <SectionReveal delay={0.2}>
               <div className="w-64 md:w-80 aspect-[3/4] rounded-3xl overflow-hidden relative shadow-2xl ring-2 ring-white/20">
                 <Image
-                  src="/tanmay-portfolio/images/lifestyle/tahoe.jpg"
+                  src="/images/lifestyle/tahoe.jpg"
                   alt="Tanmay at Lake Tahoe"
                   fill
                   className="object-cover object-top"

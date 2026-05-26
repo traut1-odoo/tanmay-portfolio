@@ -205,7 +205,7 @@ export default function Home() {
 
       {/* ═══ PARALLAX BREAK — SKYDIVING ═══ */}
       <ParallaxPhoto
-        src="/tanmay-portfolio/images/lifestyle/skydiving.jpg"
+        src="/images/lifestyle/skydiving.jpg"
         alt="Tanmay skydiving"
         caption="I don&apos;t just optimize systems"
         subcaption="I jump into them"
@@ -317,7 +317,7 @@ export default function Home() {
 
       {/* ═══ PARALLAX BREAK — TAHOE ═══ */}
       <ParallaxPhoto
-        src="/tanmay-portfolio/images/lifestyle/tahoe.jpg"
+        src="/images/lifestyle/tahoe.jpg"
         alt="Tanmay at Lake Tahoe"
         caption="30 places and counting"
         subcaption="Always exploring"
@@ -341,7 +341,7 @@ export default function Home() {
 
       {/* ═══ VIDEO BREAK ═══ */}
       <VideoSection
-        src="/tanmay-portfolio/videos/reel.mp4"
+        src="/videos/reel.mp4"
         caption="Building the future"
         subcaption="One system at a time"
         height="50vh"

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter, JetBrains_Mono, Source_Serif_4 } from "next/font/google";
 import { ThemeProvider } from "next-themes";
+import { Analytics } from "@vercel/analytics/react";
 import { Nav } from "@/components/nav";
 import { Footer } from "@/components/footer";
 import { InteractiveEffects } from "@/components/interactive-wrapper";
@@ -53,6 +54,7 @@ export default function RootLayout({
           </main>
           <Footer />
           <InteractiveEffects />
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>

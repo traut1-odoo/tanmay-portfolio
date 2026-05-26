@@ -160,7 +160,7 @@ export function Nav() {
 
           {/* Resume download */}
           <a
-            href="/tanmay-portfolio/resume.pdf"
+            href="/resume.pdf"
             download="Tanmay-Raut-Resume.pdf"
             className="px-2.5 py-1.5 inline-flex items-center gap-1.5 text-xs text-text-secondary hover:text-accent transition-colors rounded-lg border border-transparent hover:border-border"
             aria-label="Download resume"

@@ -18,7 +18,7 @@ import CONTEXT from "./context.generated.md";
 
 export interface Env {
   ANTHROPIC_API_KEY: string;
-  ALLOWED_ORIGIN?: string;
+  ALLOWED_ORIGIN?: string; // comma-separated list of allowed origins
 }
 
 type ChatMessage = { role: "user" | "assistant"; content: string };
@@ -47,16 +47,42 @@ Style:
 CONTEXT:
 `;
 
+// Simple in-memory rate limiter — 15 req/min per IP
+// Resets per Worker instance but provides meaningful protection
+const rateLimitMap = new Map<string, { count: number; resetAt: number }>();
+const RATE_LIMIT = 15;
+const RATE_WINDOW_MS = 60_000;
+
+function checkRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const entry = rateLimitMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    rateLimitMap.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+    return true;
+  }
+  if (entry.count >= RATE_LIMIT) return false;
+  entry.count++;
+  return true;
+}
+
 function corsHeaders(origin: string | null, allowed: string | undefined): HeadersInit {
-  // Use configured ALLOWED_ORIGIN if set; otherwise allow any origin (fine for public portfolio).
-  const allowedOrigin = allowed || "*";
-  const allow =
-    allowed && origin && (origin === allowed || origin === "null") ? origin : allowedOrigin;
+  // Support comma-separated origins e.g. "https://tanmay-portfolio-pied.vercel.app,https://tanmayrautheckler.github.io"
+  if (!allowed) {
+    return {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+      "Access-Control-Max-Age": "86400",
+    };
+  }
+  const allowedList = allowed.split(",").map((s) => s.trim());
+  const allow = origin && allowedList.includes(origin) ? origin : allowedList[0];
   return {
     "Access-Control-Allow-Origin": allow,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Max-Age": "86400",
+    Vary: "Origin",
   };
 }
 
@@ -68,6 +94,15 @@ export default {
     // CORS preflight
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: cors });
+    }
+
+    // Rate limit
+    const ip = request.headers.get("CF-Connecting-IP") ?? "unknown";
+    if (!checkRateLimit(ip)) {
+      return new Response(JSON.stringify({ error: "Too many requests. Try again in a minute." }), {
+        status: 429,
+        headers: { ...cors, "Content-Type": "application/json", "Retry-After": "60" },
+      });
     }
 
     if (request.method !== "POST") {

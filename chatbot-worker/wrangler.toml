@@ -10,7 +10,7 @@ fallthrough = true
 
 # Public vars — readable to the Worker as env.ALLOWED_ORIGIN
 [vars]
-ALLOWED_ORIGIN = "https://tanmayrautheckler.github.io"
+ALLOWED_ORIGIN = "https://tanmayrautheckler.github.io,https://tanmay-portfolio-pied.vercel.app"
 
 # Secrets (set via wrangler CLI, NEVER commit):
 #   wrangler secret put ANTHROPIC_API_KEY

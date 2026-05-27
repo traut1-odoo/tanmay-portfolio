@@ -15,6 +15,8 @@ export function AIChatbot() {
   const { messages, isLoading, sendMessage } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  // set while/just-after a drag so the release tap doesn't open the chat
+  const wasDragging = useRef(false);
 
   // Pikachu plays its reaction animation while the bot is typing or on hover
   const charState = isLoading || hovering ? "talking" : "idle";
@@ -42,9 +44,18 @@ export function AIChatbot() {
       dragMomentum={false}
       dragElastic={0}
       whileDrag={{ scale: 1.05, cursor: "grabbing" }}
+      onDragStart={() => {
+        wasDragging.current = true;
+      }}
+      onDragEnd={() => {
+        // keep the flag set briefly so the release tap is swallowed
+        setTimeout(() => {
+          wasDragging.current = false;
+        }, 120);
+      }}
       onTap={() => {
-        // framer onTap fires only on a real tap (never after a drag).
-        // Opens chat; closing is handled by the X buttons (drag is off then).
+        // a drag just happened → don't open; only a clean tap opens
+        if (wasDragging.current) return;
         if (!isOpen) setIsOpen(true);
       }}
     >

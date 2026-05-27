@@ -2,17 +2,22 @@
 
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageCircle, X, Send, Bot, User } from "lucide-react";
+import { X, Send, User } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useChat } from "@/hooks/use-chat";
+import { SplineCharacter } from "./spline-character";
 import { INPUT_PLACEHOLDER, SUGGESTED_PROMPTS } from "@/data/chatbot-context";
 
 export function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
+  const [hovering, setHovering] = useState(false);
   const [input, setInput] = useState("");
   const { messages, isLoading, sendMessage } = useChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Pikachu plays its reaction animation while the bot is typing or on hover
+  const charState = isLoading || hovering ? "talking" : "idle";
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -30,7 +35,19 @@ export function AIChatbot() {
   };
 
   return (
-    <div className="fixed bottom-6 left-6 z-50" style={{ pointerEvents: "auto" }}>
+    <motion.div
+      className="fixed bottom-6 left-6 z-50"
+      style={{ pointerEvents: "auto" }}
+      drag={!isOpen}
+      dragMomentum={false}
+      dragElastic={0}
+      whileDrag={{ scale: 1.05, cursor: "grabbing" }}
+      onTap={() => {
+        // framer onTap fires only on a real tap (never after a drag).
+        // Opens chat; closing is handled by the X buttons (drag is off then).
+        if (!isOpen) setIsOpen(true);
+      }}
+    >
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -44,12 +61,12 @@ export function AIChatbot() {
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 border-b border-border" style={{ backgroundColor: "var(--background)" }}>
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-accent/10 flex items-center justify-center">
-                  <Bot className="w-4 h-4 text-accent" />
-                </div>
+                <SplineCharacter state={isLoading ? "talking" : "idle"} size={52} compact />
                 <div>
-                  <div className="text-sm font-semibold text-foreground">Ask about Tanmay</div>
-                  <div className="text-[10px] text-text-secondary">AI-powered assistant</div>
+                  <div className="text-sm font-semibold text-foreground">Ask Pikachu about Tanmay</div>
+                  <div className="text-[10px] text-text-secondary">
+                    {isLoading ? "typing…" : "AI-powered assistant"}
+                  </div>
                 </div>
               </div>
               <button
@@ -63,8 +80,10 @@ export function AIChatbot() {
             {/* Messages */}
             <div className="h-72 overflow-y-auto p-4 space-y-3">
               {messages.length === 0 && (
-                <div className="text-center py-8">
-                  <Bot className="w-8 h-8 text-accent/40 mx-auto mb-3" />
+                <div className="text-center py-6">
+                  <div className="flex justify-center mb-3">
+                    <SplineCharacter state="idle" size={130} />
+                  </div>
                   <p className="text-sm text-text-secondary">
                     Ask about Tanmay&apos;s projects, stack, philosophy, or the Odoo 17 cutover.
                   </p>
@@ -85,8 +104,8 @@ export function AIChatbot() {
               {messages.map((msg, i) => (
                 <div key={i} className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                   {msg.role === "assistant" && (
-                    <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <Bot className="w-3 h-3 text-accent" />
+                    <div className="shrink-0 mt-0.5">
+                      <SplineCharacter state="idle" size={24} compact />
                     </div>
                   )}
                   <div
@@ -127,8 +146,8 @@ export function AIChatbot() {
 
               {isLoading && (
                 <div className="flex gap-2 justify-start">
-                  <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center shrink-0">
-                    <Bot className="w-3 h-3 text-accent" />
+                  <div className="shrink-0 mt-0.5">
+                    <SplineCharacter state="talking" size={24} compact />
                   </div>
                   <div className="px-3 py-2 rounded-xl rounded-bl-sm border border-border" style={{ backgroundColor: "var(--surface-hover)" }}>
                     <motion.div className="flex gap-1">
@@ -170,25 +189,43 @@ export function AIChatbot() {
         )}
       </AnimatePresence>
 
-      {/* Toggle button */}
-      <motion.button
-        onClick={() => setIsOpen(!isOpen)}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        className="w-12 h-12 rounded-full bg-accent text-black shadow-lg shadow-accent/25 flex items-center justify-center hover:bg-accent-hover transition-colors"
+      {/* Toggle button — character avatar (drag the whole widget to reposition) */}
+      <button
+        onClick={() => {
+          // when open, drag is disabled so this click fires normally → close.
+          // when closed, framer's drag suppresses this; container onTap opens.
+          if (isOpen) setIsOpen(false);
+        }}
+        onMouseEnter={() => setHovering(true)}
+        onMouseLeave={() => setHovering(false)}
+        className="relative focus:outline-none transition-transform hover:scale-105 active:scale-95"
+        aria-label={isOpen ? "Close chat" : "Chat with Tanmay's AI"}
       >
         <AnimatePresence mode="wait">
           {isOpen ? (
-            <motion.div key="close" initial={{ rotate: -90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: 90, opacity: 0 }}>
-              <X className="w-5 h-5" />
+            <motion.div
+              key="close"
+              initial={{ scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.7, opacity: 0 }}
+              transition={{ duration: 0.18 }}
+              className="w-12 h-12 rounded-full bg-accent flex items-center justify-center shadow-xl shadow-black/30"
+            >
+              <X className="w-5 h-5 text-black" />
             </motion.div>
           ) : (
-            <motion.div key="open" initial={{ rotate: 90, opacity: 0 }} animate={{ rotate: 0, opacity: 1 }} exit={{ rotate: -90, opacity: 0 }}>
-              <MessageCircle className="w-5 h-5" />
+            <motion.div
+              key="character"
+              initial={{ scale: 0.7, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.7, opacity: 0 }}
+              transition={{ duration: 0.18 }}
+            >
+              <SplineCharacter state={charState} size={96} />
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.button>
-    </div>
+      </button>
+    </motion.div>
   );
 }

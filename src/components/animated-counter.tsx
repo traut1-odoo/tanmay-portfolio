@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface AnimatedCounterProps {
   target: string;
@@ -10,10 +10,8 @@ interface AnimatedCounterProps {
 
 export function AnimatedCounter({ target, className = "" }: AnimatedCounterProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: false, margin: "-60px" });
   const [progress, setProgress] = useState(0);
   const [displayNum, setDisplayNum] = useState(0);
-  const prevInView = useRef(false);
 
   const match = target.match(/^(\d+)(.*)$/);
   const numericTarget = match ? parseInt(match[1], 10) : 0;
@@ -24,38 +22,56 @@ export function AnimatedCounter({ target, className = "" }: AnimatedCounterProps
   const max = maxMap[numericTarget] || numericTarget;
   const targetProgress = numericTarget / max;
 
+  // Animate on mount, regardless of viewport. Stats often sit just below the
+  // fold — waiting for IntersectionObserver leaves "0+" stuck until scroll.
   useEffect(() => {
-    if (isInView && !prevInView.current) {
-      setProgress(0);
-      setDisplayNum(0);
-
-      const duration = 1400;
-      const steps = 50;
-      const stepDuration = duration / steps;
-      let step = 0;
-
-      const timer = setInterval(() => {
-        step++;
-        const t = step / steps;
-        // Ease-out cubic
-        const eased = 1 - Math.pow(1 - t, 3);
+    const duration = 1400;
+    let rafId = 0;
+    const run = () => {
+      cancelAnimationFrame(rafId);
+      let startTime: number | null = null;
+      const tick = (now: number) => {
+        if (startTime === null) startTime = now;
+        const t = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - t, 3); // ease-out cubic
         setProgress(eased * targetProgress);
         setDisplayNum(Math.round(eased * numericTarget));
+        if (t < 1) rafId = requestAnimationFrame(tick);
+      };
+      // Reset to 0 first so the count-up is visible on each replay.
+      setProgress(0);
+      setDisplayNum(0);
+      rafId = requestAnimationFrame(tick);
+    };
 
-        if (step >= steps) {
-          setProgress(targetProgress);
-          setDisplayNum(numericTarget);
-          clearInterval(timer);
-        }
-      }, stepDuration);
+    // First play on mount — covers initial load even if element is below fold.
+    run();
 
-      prevInView.current = true;
-      return () => clearInterval(timer);
+    // Replay every time the element re-enters viewport from offscreen.
+    // Multi-threshold so we see the transitions (default threshold:0 keeps it
+    // "intersecting" as long as 1px is visible — no replay on normal scroll).
+    let wasInView = true; // suppress the first IO callback after mount-run
+    const el = ref.current;
+    let io: IntersectionObserver | null = null;
+    if (el) {
+      io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            const inNow = entry.intersectionRatio > 0.5;
+            if (inNow && !wasInView) run();
+            wasInView = inNow;
+          }
+        },
+        { threshold: [0, 0.25, 0.5, 0.75, 1] },
+      );
+      io.observe(el);
     }
-    if (!isInView) {
-      prevInView.current = false;
-    }
-  }, [isInView, numericTarget, targetProgress]);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      if (io) io.disconnect();
+    };
+  }, [numericTarget, targetProgress]);
 
   const size = 72;
   const stroke = 4;
@@ -100,7 +116,6 @@ export function AnimatedCounter({ target, className = "" }: AnimatedCounterProps
         <div className="absolute inset-0 flex items-center justify-center">
           <motion.span
             className="text-xl font-bold text-text tabular-nums"
-            key={isInView ? "in" : "out"}
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.3 }}

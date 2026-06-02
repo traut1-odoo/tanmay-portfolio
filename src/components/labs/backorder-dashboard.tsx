@@ -360,6 +360,14 @@ export function BackorderDashboard() {
       chartInstances.current.push(new Chart(canvas, cfg));
     };
 
+    // Pointer cursor when hovering a clickable element
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const pointerHover = (e: any, els: any[]) => {
+      const t = e?.native?.target as HTMLElement | undefined;
+      if (t) t.style.cursor = els.length ? "pointer" : "default";
+    };
+    const STATUS_KEYS = ["ready", "waiting", "waiting_op", "wts"];
+
     Chart.defaults.font.family = "'Inter', system-ui, sans-serif";
     Chart.defaults.color = HK.textSub;
 
@@ -413,6 +421,13 @@ export function BackorderDashboard() {
       options: {
         responsive: true, maintainAspectRatio: false,
         cutout: "62%",
+        onHover: pointerHover,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onClick: (_e: any, els: any[]) => {
+          if (!els.length) return;
+          const k = STATUS_KEYS[els[0].index];
+          setFilterStatus((p) => (p === k ? "all" : k));
+        },
         plugins: {
           legend: { position: "bottom", labels: { font: { size: 11 }, boxWidth: 12, padding: 8 } },
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -437,6 +452,13 @@ export function BackorderDashboard() {
       },
       options: {
         indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        onHover: pointerHover,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onClick: (_e: any, els: any[]) => {
+          if (!els.length) return;
+          const cat = catSorted[els[0].index][0];
+          setFilterCat((p) => (p === cat ? "all" : cat));
+        },
         plugins: { legend: { display: false } },
         scales: {
           x: { grid: { color: gridColor }, ticks: { ...tickOpts, callback: fmtK } },
@@ -461,6 +483,13 @@ export function BackorderDashboard() {
       },
       options: {
         indexAxis: "y", responsive: true, maintainAspectRatio: false,
+        onHover: pointerHover,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onClick: (_e: any, els: any[]) => {
+          if (!els.length) return;
+          const short = custSorted[els[0].index][0].split(" ").slice(0, 2).join(" ");
+          setSearch((p) => (p === short ? "" : short));
+        },
         plugins: { legend: { display: false } },
         scales: {
           x: { grid: { color: gridColor }, ticks: { ...tickOpts, callback: fmtK } },
@@ -567,6 +596,16 @@ export function BackorderDashboard() {
     URL.revokeObjectURL(url);
   };
 
+  // ── Active filters (click charts / dropdowns to set) ─────────────────────────
+  const activeFilters = [
+    filterStatus !== "all" && { label: `Status: ${STATUS_LABELS[filterStatus as keyof typeof STATUS_LABELS]}`, clear: () => setFilterStatus("all") },
+    filterCat !== "all" && { label: `Category: ${filterCat}`, clear: () => setFilterCat("all") },
+    filterChan !== "all" && { label: `Channel: ${CHAN_LABELS[parseInt(filterChan) as keyof typeof CHAN_LABELS]}`, clear: () => setFilterChan("all") },
+    search && { label: `“${search}”`, clear: () => setSearch("") },
+  ].filter(Boolean) as { label: string; clear: () => void }[];
+
+  const clearAll = () => { setFilterStatus("all"); setFilterCat("all"); setFilterChan("all"); setSearch(""); };
+
   // ── Render ──────────────────────────────────────────────────────────────────
   return (
     <div style={{ background: HK.white, color: HK.text, fontFamily: "'Inter',system-ui,sans-serif", fontSize: 13, minHeight: "100%", overflowY: "auto" }}>
@@ -608,6 +647,24 @@ export function BackorderDashboard() {
           Export CSV
         </button>
       </div>
+
+      {/* ── Active-filter chips (set by clicking charts or dropdowns) ── */}
+      {activeFilters.length > 0 && (
+        <div style={{ background: HK.white, borderBottom: `1px solid ${HK.border}`, padding: "8px 16px", display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
+          <span style={{ fontSize: 11, color: HK.muted, marginRight: 2 }}>Filtered by:</span>
+          {activeFilters.map((f, i) => (
+            <button key={i} onClick={f.clear}
+              style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "3px 9px", background: HK.cta + "18", color: HK.cta, border: `1px solid ${HK.cta}40`, borderRadius: 999, fontSize: 11, fontWeight: 600, cursor: "pointer" }}>
+              {f.label}
+              <span style={{ fontSize: 13, lineHeight: 1 }}>×</span>
+            </button>
+          ))}
+          <button onClick={clearAll}
+            style={{ marginLeft: 4, padding: "3px 9px", background: "transparent", color: HK.muted, border: `1px solid ${HK.border}`, borderRadius: 999, fontSize: 11, cursor: "pointer" }}>
+            Clear all
+          </button>
+        </div>
+      )}
 
       {/* ── Metric strip ── */}
       <div style={{ padding: "12px 16px", display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}>

@@ -4,7 +4,7 @@
  * Backorder Dashboard — interactive demo for /labs
  *
  * Heckler Design live artifact recreation with sanitized mock data.
- * Loads Chart.js v4 from unpkg CDN (already in CSP allowlist).
+ * Chart.js v4 bundled via npm (tree-shaken — controllers must be registered).
  * All data is synthetic — no real Heckler customers.
  *
  * Layout:
@@ -14,11 +14,15 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import {
   Chart,
+  BarController, LineController, DoughnutController,
   CategoryScale, LinearScale, BarElement, LineElement,
   PointElement, ArcElement, Tooltip, Legend, Filler,
 } from "chart.js";
 
 Chart.register(
+  // controllers — register the chart TYPES ("bar"/"line"/"doughnut").
+  // Without these, new Chart({type:"bar"}) throws and React render-loops → renderer crash.
+  BarController, LineController, DoughnutController,
   CategoryScale, LinearScale, BarElement, LineElement,
   PointElement, ArcElement, Tooltip, Legend, Filler
 );

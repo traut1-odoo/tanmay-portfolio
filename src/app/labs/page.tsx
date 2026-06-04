@@ -3,6 +3,8 @@
 import { motion } from "framer-motion";
 import { FlaskConical, Zap, Terminal } from "lucide-react";
 import { BackorderDemoCard } from "@/components/labs/demo-card";
+import { VendorPortalDemoCard } from "@/components/labs/vendor-portal-card";
+import { MCPCoworkDemoCard } from "@/components/labs/mcp-cowork-card";
 
 export default function LabsPage() {
   return (
@@ -52,21 +54,11 @@ export default function LabsPage() {
           {/* Demo 1 — Backorder Dashboard */}
           <BackorderDemoCard />
 
-          {/* Placeholder cards — more demos coming */}
-          <ComingSoonCard
-            index={1}
-            title="Vendor Portal"
-            subtitle="Supplier RMA + credit flow · Odoo 19"
-            tags={["Odoo 19", "Portal", "RMA"]}
-            icon="📦"
-          />
-          <ComingSoonCard
-            index={2}
-            title="MCP Cowork Agent"
-            subtitle="Multi-agent orchestration · Claude API"
-            tags={["Claude API", "MCP", "Agents"]}
-            icon="🤖"
-          />
+          {/* Demo 2 — Vendor Portal RMA + credit flow */}
+          <VendorPortalDemoCard />
+
+          {/* Demo 3 — MCP Cowork Agent */}
+          <MCPCoworkDemoCard />
         </div>
       </section>
 
@@ -90,74 +82,5 @@ export default function LabsPage() {
         </motion.div>
       </section>
     </div>
-  );
-}
-
-// ── Coming soon placeholder card ──────────────────────────────────────────────
-function ComingSoonCard({
-  index,
-  title,
-  subtitle,
-  tags,
-  icon,
-}: {
-  index: number;
-  title: string;
-  subtitle: string;
-  tags: string[];
-  icon: string;
-}) {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="relative rounded-2xl border overflow-hidden"
-      style={{ borderColor: "var(--border)", background: "var(--surface-hover)", opacity: 0.55 }}
-    >
-      {/* Coming soon badge */}
-      <div
-        className="absolute top-3 right-3 px-2 py-1 rounded-full text-[10px] font-mono font-bold"
-        style={{ background: "var(--border)", color: "var(--text-secondary)" }}
-      >
-        COMING SOON
-      </div>
-
-      <div className="p-4 pb-2">
-        {/* Placeholder metric strip */}
-        <div className="grid grid-cols-4 gap-2 mb-3">
-          {["—", "—", "—", "—"].map((_, i) => (
-            <div
-              key={i}
-              className="rounded-lg p-2.5 skeleton"
-              style={{ height: 52, background: "#F4F1EA44" }}
-            />
-          ))}
-        </div>
-        {/* Placeholder bar */}
-        <div className="rounded-lg p-3 mb-2.5 skeleton" style={{ height: 72, background: "#F4F1EA44" }} />
-        <div className="rounded-lg p-3 skeleton" style={{ height: 64, background: "#F4F1EA44" }} />
-      </div>
-
-      <div className="px-4 pb-4 pt-1">
-        <div className="text-2xl mb-1">{icon}</div>
-        <div className="font-semibold text-sm text-foreground mb-0.5">{title}</div>
-        <div className="text-[11px] mb-2" style={{ color: "var(--text-secondary)" }}>
-          {subtitle}
-        </div>
-        <div className="flex flex-wrap gap-1.5">
-          {tags.map((t) => (
-            <span
-              key={t}
-              className="text-[10px] px-2 py-0.5 rounded-full font-mono"
-              style={{ background: "var(--border)", color: "var(--text-secondary)" }}
-            >
-              {t}
-            </span>
-          ))}
-        </div>
-      </div>
-    </motion.div>
   );
 }

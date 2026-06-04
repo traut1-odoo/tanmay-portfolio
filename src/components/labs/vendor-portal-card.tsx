@@ -13,6 +13,7 @@
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Package, Search, Check, FileText, ChevronRight, Camera } from "lucide-react";
+import { useIsMobile } from "./use-is-mobile";
 
 // ── Heckler tokens ──────────────────────────────────────────────────────────────
 const HK = {
@@ -106,6 +107,7 @@ function VendorPortalApp() {
   const [statusFilter, setStatusFilter] = useState<"all" | Status>("all");
   const [sortKey, setSortKey] = useState<"date" | "value">("date");
   const [toast, setToast] = useState<string | null>(null);
+  const isMobile = useIsMobile();
 
   const showToast = (msg: string) => {
     setToast(msg);
@@ -180,7 +182,7 @@ function VendorPortalApp() {
       </div>
 
       {/* Metric strip */}
-      <div style={{ padding: "12px 16px", display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 8 }}>
+      <div style={{ padding: "12px 16px", display: "grid", gridTemplateColumns: isMobile ? "repeat(2,1fr)" : "repeat(4,1fr)", gap: 8 }}>
         {[
           { label: "Open RMAs", value: metrics.open, color: HK.black, sub: "awaiting resolution" },
           { label: "Pending Credit", value: metrics.pendingCredit, color: HK.warning, sub: "approved · not issued" },
@@ -195,8 +197,8 @@ function VendorPortalApp() {
         ))}
       </div>
 
-      {/* Split: list + detail */}
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,420px)", gap: 12, padding: "4px 16px 20px", alignItems: "start" }}>
+      {/* Split: list + detail (stacks on mobile) */}
+      <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "minmax(0,1fr) minmax(0,420px)", gap: 12, padding: "4px 16px 20px", alignItems: "start" }}>
         {/* List */}
         <div style={{ border: `1px solid ${HK.border}`, borderRadius: 8, overflow: "hidden", background: HK.white }}>
           <div style={{ display: "grid", gridTemplateColumns: "84px 1fr 84px 86px", background: HK.band, borderBottom: `1px solid ${HK.border}`, padding: "7px 12px" }}>

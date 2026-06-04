@@ -12,6 +12,7 @@
  */
 
 import { useEffect, useRef, useState, useMemo } from "react";
+import { useIsMobile } from "./use-is-mobile";
 import {
   Chart,
   BarController, LineController, DoughnutController,
@@ -337,6 +338,7 @@ export function BackorderDashboard() {
   const [filterChan, setFilterChan] = useState("all");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const isMobile = useIsMobile();
 
   // Canvas refs
   const flowRef  = useRef<HTMLCanvasElement>(null);
@@ -667,7 +669,7 @@ export function BackorderDashboard() {
       )}
 
       {/* ── Metric strip ── */}
-      <div style={{ padding: "12px 16px", display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 8 }}>
+      <div style={{ padding: "12px 16px", display: "grid", gridTemplateColumns: isMobile ? "repeat(2,1fr)" : "repeat(7,1fr)", gap: 8 }}>
         {[
           { label: "Total Value", value: fmt$(metrics.totalVal), sub: `${DATA.length} orders`, color: HK.black },
           { label: "Margin at Risk", value: fmt$(Math.round(metrics.marginAtRisk)), sub: `${metrics.overdue} overdue SOs`, color: HK.error },
@@ -686,7 +688,7 @@ export function BackorderDashboard() {
       </div>
 
       {/* ── Charts grid ── */}
-      <div style={{ padding: "0 16px 12px", display: "grid", gridTemplateColumns: "2fr 1fr", gap: 12 }}>
+      <div style={{ padding: "0 16px 12px", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "2fr 1fr", gap: 12 }}>
         {/* Flow chart */}
         <ChartCard title="GP Flow — Inflow vs Shipped (8 weeks)" height={200}>
           <canvas ref={flowRef} />
@@ -697,7 +699,7 @@ export function BackorderDashboard() {
         </ChartCard>
       </div>
 
-      <div style={{ padding: "0 16px 12px", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12 }}>
+      <div style={{ padding: "0 16px 12px", display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: 12 }}>
         <ChartCard title="Value by Category" height={180}>
           <canvas ref={catRef} />
         </ChartCard>

@@ -13,6 +13,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Bot, Cpu, Database, Sparkles, Send, CornerDownLeft } from "lucide-react";
+import { useIsMobile } from "./use-is-mobile";
 
 // ── Dark agent tokens ─────────────────────────────────────────────────────────────
 const D = {
@@ -89,6 +90,61 @@ const SCENARIOS: Scenario[] = [
     },
     answer: "5 sellable SKUs are below reorder point. Wall Bracket B3 is fully stocked out (0 on hand, needs 40) and Hinge Assy H6 is critical at 2/30 — both block open SOs. Suggest raising POs for those two today.",
   },
+  {
+    q: "Break down BOM cost for Monitor Arm T2",
+    plan: "Explode the mrp.bom for HD-ARM-T2, roll up component costs, compare to standard price.",
+    calls: [
+      { tool: "read", model: "mrp.bom", args: "product: HD-ARM-T2 · explode: components", result: "1 BOM · 6 lines · 18ms" },
+      { tool: "aggregate", model: "mrp.bom.line", args: "measure: sum(product_qty × cost)", result: "6 components · 9ms" },
+    ],
+    table: {
+      title: "mrp.bom.line — Monitor Arm T2",
+      cols: ["Component", "Qty", "Line cost"],
+      rows: [
+        ["Extruded arm", "×1", "$22.40"],
+        ["Pivot joint", "×2", "$16.00"],
+        ["Base clamp", "×1", "$12.50"],
+        ["Cable channel", "×1", "$5.10"],
+        ["Packaging set", "×1", "$4.80"],
+        ["Fasteners", "×8", "$3.20"],
+      ],
+    },
+    answer: "BOM rolls up to $64.00 in materials against an $88 standard price — a 27% material margin. The pivot-joint pair ($16) and extruded arm ($22.40) drive ~60% of cost; renegotiating those two would move margin the most.",
+  },
+  {
+    q: "Average lead time by vendor, last 90 days",
+    plan: "Aggregate purchase.order receipt-minus-order days grouped by vendor, with on-time rate.",
+    calls: [
+      { tool: "aggregate", model: "purchase.order", args: "groupby: partner_id · measure: avg(effective_date − date_order)", result: "5 vendors · 27ms" },
+    ],
+    table: {
+      title: "purchase.order — avg lead time · 90d",
+      cols: ["Vendor", "POs", "Avg lead", "On-time"],
+      rows: [
+        ["Metalworks Co", "18", "6d", "94%"],
+        ["FineForm", "12", "8d", "90%"],
+        ["Premier Mfg", "15", "11d", "82%"],
+        ["Coastal Parts", "9", "14d", "78%"],
+        ["AliMetal", "11", "24d", "61%"],
+      ],
+    },
+    answer: "AliMetal is the clear outlier — 24-day average lead and 61% on-time, while everyone else is under 14 days. They also own both open finish/burr RMAs. Dual-sourcing their parts would de-risk the supply chain.",
+  },
+  {
+    q: "Gross margin by product category this quarter",
+    plan: "Aggregate sale.order.line margin grouped by product category for the trailing quarter.",
+    calls: [
+      { tool: "aggregate", model: "sale.order.line", args: "groupby: categ_id · measure: sum(margin), sum(price_subtotal)", result: "5 categories · 31ms" },
+    ],
+    metrics: [
+      { label: "Custom", value: "58%", color: D.green },
+      { label: "Lectern", value: "49%", color: D.cyan },
+      { label: "Mobile Fleet", value: "41%", color: D.accent },
+      { label: "Panel", value: "36%", color: D.amber },
+      { label: "Stock", value: "28%", color: D.pink },
+    ],
+    answer: "Custom work leads at 58% margin on the highest revenue — it's the profit engine. Stock lags at 28%. Tilting the mix toward Custom and Lectern lifts blended margin; Stock pricing is worth a review.",
+  },
 ];
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -140,6 +196,7 @@ function MCPCoworkApp() {
   const [used, setUsed] = useState<Set<number>>(new Set());
   const mounted = useRef(true);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => () => { mounted.current = false; }, []);
   useEffect(() => { scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" }); }, [events]);
@@ -190,7 +247,7 @@ function MCPCoworkApp() {
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column", fontFamily: "'Inter',system-ui,sans-serif", color: D.text }}>
       {/* Pipeline nodes */}
-      <div style={{ padding: "14px 20px", borderBottom: `1px solid ${D.border}`, display: "flex", alignItems: "center", gap: 0, background: "#0a0a11" }}>
+      <div style={{ padding: isMobile ? "12px 14px" : "14px 20px", borderBottom: `1px solid ${D.border}`, display: "flex", alignItems: "center", gap: 0, background: "#0a0a11" }}>
         {NODES.map((n, i) => {
           const active = activeNode === i;
           const past = activeNode > i || (!running && events.length > 0);
@@ -205,17 +262,17 @@ function MCPCoworkApp() {
                     borderColor: active ? D.accent : on ? D.accent + "55" : D.border,
                     scale: active ? 1.08 : 1,
                   }}
-                  style={{ width: 30, height: 30, borderRadius: 8, border: "1px solid", display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                  style={{ width: 30, height: 30, borderRadius: 8, border: "1px solid", display: "flex", alignItems: "center", justifyContent: "center", position: "relative", flexShrink: 0 }}>
                   <Icon className="w-3.5 h-3.5" style={{ color: on ? D.accent : D.faint }} />
                   {active && (
                     <motion.div animate={{ opacity: [0.6, 0, 0.6] }} transition={{ duration: 1.2, repeat: Infinity }}
                       style={{ position: "absolute", inset: -3, borderRadius: 10, border: `1px solid ${D.accent}` }} />
                   )}
                 </motion.div>
-                <span style={{ fontSize: 12, fontWeight: 600, color: on ? D.text : D.faint }}>{n.label}</span>
+                {!isMobile && <span style={{ fontSize: 12, fontWeight: 600, color: on ? D.text : D.faint }}>{n.label}</span>}
               </div>
               {i < NODES.length - 1 && (
-                <div style={{ flex: 1, height: 2, margin: "0 12px", background: D.border, borderRadius: 2, overflow: "hidden" }}>
+                <div style={{ flex: 1, height: 2, margin: isMobile ? "0 6px" : "0 12px", background: D.border, borderRadius: 2, overflow: "hidden" }}>
                   <motion.div animate={{ width: activeNode > i || (!running && events.length > 0) ? "100%" : "0%" }}
                     transition={{ duration: 0.5 }} style={{ height: "100%", background: D.accent }} />
                 </div>
@@ -358,7 +415,7 @@ function EventRow({ ev }: { ev: Event }) {
     return (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
         <NodeDot color={D.green} icon={Sparkles} />
-        <div style={{ flex: 1, display: "grid", gridTemplateColumns: `repeat(${ev.metrics.length},1fr)`, gap: 8 }}>
+        <div style={{ flex: 1, display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(96px, 1fr))", gap: 8 }}>
           {ev.metrics.map((m, i) => (
             <motion.div key={m.label} initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: i * 0.08 }}
               style={{ background: "#0e0e18", border: `1px solid ${D.border}`, borderRadius: 8, padding: "12px 14px" }}>

@@ -9,7 +9,7 @@
 import Link from "next/link";
 import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useRef, useEffect, useState } from "react";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 import { FeaturedProject } from "@/components/projects/featured-project";
 import { projects } from "@/data/projects";
 
@@ -26,15 +26,11 @@ const STATS = [
 function StatNumber({ target }: { target: number }) {
   const ref = useRef<HTMLSpanElement>(null);
   const inView = useInView(ref, { once: true, margin: "-40px" });
-  const [v, setV] = useState(0);
+  const [v, setV] = useState(target);
   const reduced = useReducedMotion();
 
   useEffect(() => {
-    if (!inView) return;
-    if (reduced) {
-      setV(target);
-      return;
-    }
+    if (!inView || reduced) return;
     const start = performance.now();
     const duration = 1100;
     let raf = 0;
@@ -44,7 +40,10 @@ function StatNumber({ target }: { target: number }) {
       setV(Math.floor(eased * target));
       if (p < 1) raf = requestAnimationFrame(tick);
     };
-    raf = requestAnimationFrame(tick);
+    raf = requestAnimationFrame(() => {
+      setV(0);
+      raf = requestAnimationFrame(tick);
+    });
     return () => cancelAnimationFrame(raf);
   }, [inView, target, reduced]);
 

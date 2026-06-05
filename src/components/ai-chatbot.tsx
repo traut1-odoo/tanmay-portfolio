@@ -38,7 +38,7 @@ export function AIChatbot() {
 
   return (
     <motion.div
-      className="fixed bottom-6 left-6 z-50"
+      className="fixed bottom-4 left-3 md:bottom-5 md:left-5 z-50"
       style={{ pointerEvents: "auto" }}
       drag={!isOpen}
       dragMomentum={false}
@@ -66,7 +66,7 @@ export function AIChatbot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="absolute bottom-16 left-0 w-80 sm:w-96 bg-background border border-border rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
+            className="absolute bottom-14 left-0 w-[calc(100vw-1.5rem)] max-w-80 sm:max-w-96 bg-background border border-border rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
             style={{ backgroundColor: "var(--background)" }}
           >
             {/* Header */}
@@ -232,7 +232,7 @@ export function AIChatbot() {
               exit={{ scale: 0.7, opacity: 0 }}
               transition={{ duration: 0.18 }}
             >
-              <SplineCharacter state={charState} size={96} />
+              <SplineCharacter state={charState} size={72} />
             </motion.div>
           )}
         </AnimatePresence>

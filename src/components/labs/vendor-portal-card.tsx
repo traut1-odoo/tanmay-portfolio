@@ -10,7 +10,7 @@
  * approve → issue credit note (animated) → status advances + toast.
  */
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Package, Search, Check, FileText, ChevronRight, Camera } from "lucide-react";
 import { useIsMobile } from "./use-is-mobile";
@@ -62,6 +62,18 @@ const fmt$ = (n: number) => "$" + Math.round(n).toLocaleString();
 // ════════════════════════════════════════════════════════════════════════════════
 export function VendorPortalDemoCard() {
   const [open, setOpen] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => scrollRef.current?.scrollTo({ top: 0, left: 0 }));
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
+
   return (
     <>
       <PreviewCard onOpen={() => setOpen(true)} />
@@ -74,12 +86,12 @@ export function VendorPortalDemoCard() {
             className="fixed inset-0 z-[200] flex flex-col"
             style={{ background: "rgba(0,0,0,0.78)", backdropFilter: "blur(6px)" }}
           >
-            <div className="flex items-center justify-between px-5 py-3 shrink-0"
+            <div className="flex items-center justify-between gap-3 px-4 md:px-5 py-3 shrink-0"
               style={{ background: HK.black, borderBottom: "1px solid #444" }}>
-              <div className="flex items-center gap-3">
+              <div className="min-w-0 flex items-center gap-3">
                 <Package className="w-4 h-4" style={{ color: HK.cta }} />
-                <span style={{ color: HK.white, fontWeight: 600, fontSize: 14 }}>Vendor Portal — RMA & Credits</span>
-                <span style={{ color: HK.muted, fontSize: 11 }}>· Interactive demo · Sanitized data</span>
+                <span className="truncate" style={{ color: HK.white, fontWeight: 600, fontSize: 14 }}>Vendor Portal — RMA & Credits</span>
+                <span className="hidden sm:inline" style={{ color: HK.muted, fontSize: 11 }}>· Interactive demo · Sanitized data</span>
               </div>
               <button onClick={() => setOpen(false)}
                 className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-white/10"
@@ -87,7 +99,7 @@ export function VendorPortalDemoCard() {
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="flex-1 overflow-auto" style={{ background: HK.white }}>
+            <div ref={scrollRef} className="flex-1 overflow-auto overscroll-contain" style={{ background: HK.white }}>
               <VendorPortalApp />
             </div>
           </motion.div>

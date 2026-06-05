@@ -10,8 +10,6 @@ interface AnimatedCounterProps {
 
 export function AnimatedCounter({ target, className = "" }: AnimatedCounterProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
-  const [displayNum, setDisplayNum] = useState(0);
 
   const match = target.match(/^(\d+)(.*)$/);
   const numericTarget = match ? parseInt(match[1], 10) : 0;
@@ -21,6 +19,8 @@ export function AnimatedCounter({ target, className = "" }: AnimatedCounterProps
   const maxMap: Record<number, number> = { 18: 20, 1: 1, 3: 5, 8: 10 };
   const max = maxMap[numericTarget] || numericTarget;
   const targetProgress = numericTarget / max;
+  const [progress, setProgress] = useState(targetProgress);
+  const [displayNum, setDisplayNum] = useState(numericTarget);
 
   // Animate on mount, regardless of viewport. Stats often sit just below the
   // fold — waiting for IntersectionObserver leaves "0+" stuck until scroll.
@@ -41,11 +41,21 @@ export function AnimatedCounter({ target, className = "" }: AnimatedCounterProps
       // Reset to 0 first so the count-up is visible on each replay.
       setProgress(0);
       setDisplayNum(0);
-      rafId = requestAnimationFrame(tick);
+      rafId = requestAnimationFrame(() => {
+        rafId = requestAnimationFrame(tick);
+      });
     };
 
-    // First play on mount — covers initial load even if element is below fold.
-    run();
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) return;
+
+    // First play on mount. If animation is delayed or interrupted, the server
+    // and initial client paint still show the real number instead of a stuck 0.
+    const startId = window.setTimeout(run, 80);
+    const fallbackId = window.setTimeout(() => {
+      setProgress(targetProgress);
+      setDisplayNum(numericTarget);
+    }, duration + 250);
 
     // Replay every time the element re-enters viewport from offscreen.
     // Multi-threshold so we see the transitions (default threshold:0 keeps it
@@ -68,6 +78,8 @@ export function AnimatedCounter({ target, className = "" }: AnimatedCounterProps
     }
 
     return () => {
+      window.clearTimeout(startId);
+      window.clearTimeout(fallbackId);
       cancelAnimationFrame(rafId);
       if (io) io.disconnect();
     };

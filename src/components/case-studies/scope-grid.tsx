@@ -11,30 +11,37 @@ function formatNumber(n: number) {
 function Count({ value, formatted, inView }: { value: number; formatted?: string; inView: boolean }) {
   const reduced = useReducedMotion();
   const mv = useMotionValue(0);
-  const [display, setDisplay] = useState("0");
+  const finalDisplay = formatted ?? formatNumber(value);
+  const [display, setDisplay] = useState(finalDisplay);
 
   useEffect(() => {
-    if (!inView) return;
-    if (reduced) {
-      setDisplay(formatted ?? formatNumber(value));
-      return;
-    }
-    const controls = animate(mv, value, {
-      duration: 1.6,
-      ease: [0.16, 1, 0.3, 1],
-      onUpdate(v) {
-        if (formatted) {
-          // For pre-formatted (e.g. "~300K"), show formatted at end but approximate during
-          const pct = v / value;
-          if (pct < 0.98) setDisplay(formatNumber(Math.round(v)));
-          else setDisplay(formatted);
-        } else {
-          setDisplay(formatNumber(Math.round(v)));
-        }
-      },
+    if (!inView || reduced) return;
+    let raf = 0;
+    let controls: { stop: () => void } | null = null;
+    raf = requestAnimationFrame(() => {
+      setDisplay("0");
+      mv.set(0);
+      controls = animate(mv, value, {
+        duration: 1.6,
+        ease: [0.16, 1, 0.3, 1],
+        onUpdate(v) {
+          if (formatted) {
+            // For pre-formatted values, approximate during the count and snap to
+            // the intentional label at the end.
+            const pct = v / value;
+            if (pct < 0.98) setDisplay(formatNumber(Math.round(v)));
+            else setDisplay(finalDisplay);
+          } else {
+            setDisplay(formatNumber(Math.round(v)));
+          }
+        },
+      });
     });
-    return () => controls.stop();
-  }, [inView, value, formatted, mv, reduced]);
+    return () => {
+      cancelAnimationFrame(raf);
+      controls?.stop();
+    };
+  }, [inView, value, formatted, finalDisplay, mv, reduced]);
 
   return <>{display}</>;
 }

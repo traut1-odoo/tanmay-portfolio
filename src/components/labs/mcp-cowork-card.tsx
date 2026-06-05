@@ -152,6 +152,18 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 // ════════════════════════════════════════════════════════════════════════════════
 export function MCPCoworkDemoCard() {
   const [open, setOpen] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => scrollRef.current?.scrollTo({ top: 0, left: 0 }));
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
+
   return (
     <>
       <PreviewCard onOpen={() => setOpen(true)} />
@@ -160,17 +172,17 @@ export function MCPCoworkDemoCard() {
           <motion.div key="mcp-modal"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}
             className="fixed inset-0 z-[200] flex flex-col" style={{ background: "rgba(0,0,0,0.82)", backdropFilter: "blur(6px)" }}>
-            <div className="flex items-center justify-between px-5 py-3 shrink-0" style={{ background: "#08080e", borderBottom: `1px solid ${D.border}` }}>
-              <div className="flex items-center gap-3">
+            <div className="flex items-center justify-between gap-3 px-4 md:px-5 py-3 shrink-0" style={{ background: "#08080e", borderBottom: `1px solid ${D.border}` }}>
+              <div className="min-w-0 flex items-center gap-3">
                 <Bot className="w-4 h-4" style={{ color: D.accent }} />
-                <span style={{ color: D.text, fontWeight: 600, fontSize: 14 }}>MCP Cowork Agent</span>
-                <span style={{ color: D.faint, fontSize: 11 }}>· Claude ↔ Odoo via MCP · Synthetic data</span>
+                <span className="truncate" style={{ color: D.text, fontWeight: 600, fontSize: 14 }}>MCP Cowork Agent</span>
+                <span className="hidden sm:inline" style={{ color: D.faint, fontSize: 11 }}>· Claude ↔ Odoo via MCP · Synthetic data</span>
               </div>
               <button onClick={() => setOpen(false)} className="w-8 h-8 rounded-full flex items-center justify-center transition-colors hover:bg-white/10" style={{ color: D.sub }}>
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="flex-1 overflow-hidden" style={{ background: D.bg }}>
+            <div ref={scrollRef} className="flex-1 overflow-hidden overscroll-contain" style={{ background: D.bg }}>
               <MCPCoworkApp />
             </div>
           </motion.div>

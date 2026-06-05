@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, ExternalLink, Zap } from "lucide-react";
 import dynamic from "next/dynamic";
@@ -46,6 +46,17 @@ const BACKORDER_META: DemoMeta = {
 // ── Main export ───────────────────────────────────────────────────────────────
 export function BackorderDemoCard() {
   const [open, setOpen] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    requestAnimationFrame(() => scrollRef.current?.scrollTo({ top: 0, left: 0 }));
+    return () => {
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [open]);
 
   return (
     <>
@@ -63,15 +74,15 @@ export function BackorderDemoCard() {
             style={{ background: "rgba(0,0,0,0.75)", backdropFilter: "blur(6px)" }}
           >
             <div
-              className="flex items-center justify-between px-5 py-3 shrink-0"
+              className="flex items-center justify-between gap-3 px-4 md:px-5 py-3 shrink-0"
               style={{ background: "#2F3234", borderBottom: "1px solid #444" }}
             >
-              <div className="flex items-center gap-3">
+              <div className="min-w-0 flex items-center gap-3">
                 <Zap className="w-4 h-4" style={{ color: "#0EBBFF" }} />
-                <span style={{ color: "#FDFCF8", fontWeight: 600, fontSize: 14 }}>
+                <span className="truncate" style={{ color: "#FDFCF8", fontWeight: 600, fontSize: 14 }}>
                   Backorder Dashboard
                 </span>
-                <span style={{ color: "#9B9891", fontSize: 11 }}>
+                <span className="hidden sm:inline" style={{ color: "#9B9891", fontSize: 11 }}>
                   · Interactive demo · Sanitized data
                 </span>
               </div>
@@ -84,7 +95,7 @@ export function BackorderDemoCard() {
               </button>
             </div>
 
-            <div className="flex-1 overflow-auto" style={{ background: "#FDFCF8" }}>
+            <div ref={scrollRef} className="flex-1 overflow-auto overscroll-contain" style={{ background: "#FDFCF8" }}>
               <BackorderDashboard />
             </div>
           </motion.div>

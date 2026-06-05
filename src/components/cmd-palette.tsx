@@ -176,7 +176,7 @@ export function CommandPalette() {
                 </Command.Group>
 
                 <Command.Group heading="Fun" className="text-[10px] font-mono uppercase tracking-widest text-text-secondary px-2 py-1.5 mt-2">
-                  <Item icon={<Bot className="w-4 h-4" />} onSelect={() => { setOpen(false); document.querySelector<HTMLButtonElement>("[aria-label='Toggle menu'] ~ * button, .fixed.bottom-6.left-6 button")?.click?.(); }} value="chatbot ai ask">Open AI Chatbot</Item>
+                  <Item icon={<Bot className="w-4 h-4" />} onSelect={() => { setOpen(false); document.querySelector<HTMLButtonElement>("[aria-label=\"Chat with Tanmay's AI\"]")?.click?.(); }} value="chatbot ai ask">Open AI Chatbot</Item>
                   <Item icon={<Mountain className="w-4 h-4" />} onSelect={triggerKonami} value="konami easter egg secret confetti">Trigger Konami Code 🎮</Item>
                 </Command.Group>
               </Command.List>

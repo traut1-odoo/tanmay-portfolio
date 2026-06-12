@@ -437,7 +437,7 @@ function PreviewCard({ onOpen }: { onOpen: () => void }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}
-      className="relative rounded-2xl border cursor-pointer overflow-hidden"
+      className="relative rounded-2xl border cursor-pointer overflow-hidden flex flex-col"
       style={{ borderColor: "var(--border)", background: "var(--surface-hover)" }}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} onClick={onOpen}
     >
@@ -490,7 +490,7 @@ function PreviewCard({ onOpen }: { onOpen: () => void }) {
         </div>
       </div>
 
-      <div className="px-4 pb-4 pt-1">
+      <div className="px-4 pb-4 pt-1 mt-auto">
         <div className="font-semibold text-sm text-foreground mb-0.5">Vendor Portal</div>
         <div className="text-[11px] mb-2" style={{ color: "var(--text-secondary)" }}>Supplier RMA + credit-note flow · Odoo 19</div>
         <div className="flex flex-wrap gap-1.5 items-center">

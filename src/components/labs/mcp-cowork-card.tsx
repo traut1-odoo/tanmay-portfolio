@@ -476,7 +476,7 @@ function PreviewCard({ onOpen }: { onOpen: () => void }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.5 }}
-      className="relative rounded-2xl border cursor-pointer overflow-hidden"
+      className="relative rounded-2xl border cursor-pointer overflow-hidden flex flex-col"
       style={{ borderColor: "var(--border)", background: "var(--surface-hover)" }}
       onMouseEnter={() => setHovered(true)} onMouseLeave={() => setHovered(false)} onClick={onOpen}>
       <motion.div className="absolute inset-0 pointer-events-none rounded-2xl" animate={{ opacity: hovered ? 1 : 0 }}
@@ -510,7 +510,7 @@ function PreviewCard({ onOpen }: { onOpen: () => void }) {
         {/* terminal lines */}
         <div className="rounded-lg p-3" style={{ background: "#0e0e18", border: `1px solid ${D.border}`, fontFamily: "monospace", fontSize: 10.5, minHeight: 92 }}>
           {lines.map((l, i) => (
-            <motion.div key={i} initial={{ opacity: 0, x: -6 }} animate={{ opacity: hovered ? 1 : 0, x: hovered ? 0 : -6 }}
+            <motion.div key={i} initial={{ opacity: 0, x: -6 }} animate={{ opacity: hovered ? 1 : 0.45, x: hovered ? 0 : -3 }}
               transition={{ duration: 0.3, delay: i * 0.12 }} style={{ color: l.c, lineHeight: 1.7, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {l.t}
             </motion.div>
@@ -518,7 +518,7 @@ function PreviewCard({ onOpen }: { onOpen: () => void }) {
         </div>
       </div>
 
-      <div className="px-4 pb-4 pt-1">
+      <div className="px-4 pb-4 pt-1 mt-auto">
         <div className="font-semibold text-sm text-foreground mb-0.5">MCP Cowork Agent</div>
         <div className="text-[11px] mb-2" style={{ color: "var(--text-secondary)" }}>Claude queries Odoo live · multi-step orchestration</div>
         <div className="flex flex-wrap gap-1.5 items-center">

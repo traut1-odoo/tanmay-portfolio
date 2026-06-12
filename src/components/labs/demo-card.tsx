@@ -117,7 +117,7 @@ function DemoCardPreview({ meta, onOpen }: { meta: DemoMeta; onOpen: () => void 
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5 }}
-      className="relative rounded-2xl border cursor-pointer overflow-hidden"
+      className="relative rounded-2xl border cursor-pointer overflow-hidden flex flex-col"
       style={{ borderColor: "var(--border)", background: "var(--surface-hover)" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -228,7 +228,7 @@ function DemoCardPreview({ meta, onOpen }: { meta: DemoMeta; onOpen: () => void 
       </div>
 
       {/* Footer */}
-      <div className="px-4 pb-4 pt-1">
+      <div className="px-4 pb-4 pt-1 mt-auto">
         <div className="mb-2">
           <div className="font-semibold text-sm text-foreground mb-0.5">{meta.title}</div>
           <div className="text-[11px]" style={{ color: "var(--text-secondary)" }}>

@@ -217,26 +217,22 @@ export default function Home() {
       {/* ═══ FEATURED PROJECTS ═══ */}
       <Container>
         <section className="pt-4 pb-2">
-          {/* Section header — standalone bento, not height-constrained by auto-rows grid */}
+          {/* Section header — BentoCard provides the entrance animation; inner
+              content is NOT separately gated (nested inView gates made the
+              header paint as an empty box on fast scroll) */}
           <BentoCard className="p-8 md:p-12 flex flex-col justify-end grid-bg relative overflow-hidden mb-10" delay={0}>
             <GradientBlob className="w-[500px] h-[300px] -top-20 right-0 opacity-20" />
             <div className="relative z-10">
-              <TextReveal>
-                <p className="text-accent text-xs font-mono tracking-[0.25em] uppercase mb-3 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-accent pulse-dot" />
-                  Selected Work
-                </p>
-              </TextReveal>
-              <TextReveal>
-                <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-3">
-                  Featured Projects.
-                </h2>
-              </TextReveal>
-              <SlideIn direction="left" delay={0.2}>
-                <p className="text-text-secondary max-w-lg">
-                  Real systems solving real business problems — from native Odoo modules to full-stack portals to AI connectors.
-                </p>
-              </SlideIn>
+              <p className="text-accent text-xs font-mono tracking-[0.25em] uppercase mb-3 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-accent pulse-dot" />
+                Selected Work
+              </p>
+              <h2 className="text-3xl md:text-5xl font-bold tracking-tight mb-3">
+                Featured Projects.
+              </h2>
+              <p className="text-text-secondary max-w-lg">
+                Real systems solving real business problems — from native Odoo modules to full-stack portals to AI connectors.
+              </p>
             </div>
           </BentoCard>
 

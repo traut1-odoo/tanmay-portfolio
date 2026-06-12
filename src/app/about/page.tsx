@@ -26,13 +26,15 @@ const barSkills = [
   { name: "Cross-Platform Integrations", value: 80, color: "bg-[#ff8a80]" },
 ];
 
+// 600px thumbs (images.unoptimized is on globally — full-res iPhone originals
+// here were ~8MB total and lazy-loaded so slowly the strip showed random gaps)
 const photoStrip = [
-  { src: "/images/lifestyle/skydiving.jpg", alt: "Skydiving" },
-  { src: "/images/lifestyle/camping.jpg", alt: "Camping" },
-  { src: "/images/lifestyle/bmw.jpg", alt: "Road Trips" },
-  { src: "/images/lifestyle/northern-lights.jpg", alt: "Glamping" },
-  { src: "https://images.unsplash.com/photo-1551632811-561732d1e306?w=300&q=80", alt: "Hiking" },
-  { src: "/images/lifestyle/la-skyline.jpg", alt: "Exploring" },
+  { src: "/images/lifestyle/thumbs/skydiving.jpg", alt: "Skydiving" },
+  { src: "/images/lifestyle/thumbs/camping.jpg", alt: "Camping" },
+  { src: "/images/lifestyle/thumbs/bmw.jpg", alt: "Road Trips" },
+  { src: "/images/lifestyle/thumbs/northern-lights.jpg", alt: "Glamping" },
+  { src: "/images/lifestyle/thumbs/tahoe.jpg", alt: "Hiking" },
+  { src: "/images/lifestyle/thumbs/la-skyline.jpg", alt: "Exploring" },
 ];
 
 // Random facts removed — replaced by interactive story cards

@@ -26,6 +26,18 @@ const links = [
   { href: "/contact", label: "Contact" },
 ];
 
+/** Label for the current route: exact menu match, then parent menu match
+ *  (e.g. /projects/foo → "Projects"), then humanized first path segment
+ *  (e.g. /case-studies/odoo-17 → "Case Studies"). */
+function currentLabel(pathname: string): string {
+  const exact = links.find((l) => l.href === pathname);
+  if (exact) return exact.label;
+  const parent = links.find((l) => l.href !== "/" && pathname.startsWith(l.href + "/"));
+  if (parent) return parent.label;
+  const seg = pathname.split("/").filter(Boolean)[0] ?? "";
+  return seg.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+}
+
 export function Nav() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -93,7 +105,7 @@ export function Nav() {
               <span>Menu</span>
               {pathname !== "/" && (
                 <span className="text-accent font-mono text-[11px] opacity-80">
-                  · {links.find((l) => l.href === pathname)?.label ?? "…"}
+                  · {currentLabel(pathname)}
                 </span>
               )}
               <motion.span

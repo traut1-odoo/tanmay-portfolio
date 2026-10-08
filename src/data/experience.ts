@@ -18,8 +18,8 @@ export const experiences: Experience[] = [
     highlights: [
       "Lead enterprise-wide ERP strategy and governance across Manufacturing, Procurement, Sales, Finance, Quality, Inventory, CRM, and Shipping",
       "Integrated manufacturing cost accounting with Odoo Accounting — full cost traceability from production floor to financial statements",
-      "Designed and deployed custom SQL analytics dashboards for real-time operational visibility",
-      "Built AI-to-ERP connector (MCP protocol) for real-time manufacturing analytics",
+      "Specified and delivered SQL analytics dashboards (AI-assisted build) for real-time cycle time, yield, and backlog visibility",
+      "Led the AI-assisted build of an AI-to-ERP connector (MCP), now used org-wide for real-time manufacturing analytics",
       "Manage cross-platform integrations: Shopify, ShipStation, Stripe, Slack, Avalara",
       "Designed C-SKU cut parts program: 35+ components with multi-level BOMs and machine routings"
     ],
@@ -35,7 +35,7 @@ export const experiences: Experience[] = [
       "Led full Odoo 16 to 17 upgrade — end-to-end testing, UAT, department training, post-go-live support",
       "Launched MRP module with automated reordering and procurement automation",
       "Implemented Odoo Accounting as the company's financial system from scratch",
-      "Configured Python/XML automations in Odoo Studio for work order generation"
+      "Designed work-order automation logic in Odoo Studio, delivered via AI-assisted configuration with full UAT"
     ],
     type: "erp"
   },

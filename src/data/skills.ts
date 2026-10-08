@@ -17,7 +17,7 @@ export const skillCategories: SkillCategory[] = [
     skills: [
       { name: "Odoo ERP (MRP, Inventory, Accounting, Sales, Purchase, Quality, CRM, Studio)", level: "Expert", percentage: 95 },
       { name: "Business Process Design & Workflow Mapping", level: "Expert", percentage: 95 },
-      { name: "SQL (PostgreSQL)", level: "Proficient", percentage: 70 },
+      { name: "SQL Reporting (AI-assisted authoring, GL-validated)", level: "Proficient", percentage: 65 },
       { name: "SAP S/4HANA", level: "Familiar", percentage: 40 },
       { name: "Excel (VBA, Power Query, PivotTables)", level: "Proficient", percentage: 75 },
     ]
@@ -28,8 +28,8 @@ export const skillCategories: SkillCategory[] = [
     skills: [
       { name: "AI-Assisted Development (Claude, ChatGPT, Gemini)", level: "Expert", percentage: 90 },
       { name: "MCP Protocol Integration", level: "Expert", percentage: 90 },
-      { name: "Odoo Studio Automations (Python, XML)", level: "Expert", percentage: 85 },
-      { name: "Custom Module Prototyping", level: "Proficient", percentage: 75 },
+      { name: "Odoo Studio Automations (AI-assisted)", level: "Expert", percentage: 85 },
+      { name: "Custom Module Design & AI-Directed Build", level: "Proficient", percentage: 75 },
     ]
   },
   {

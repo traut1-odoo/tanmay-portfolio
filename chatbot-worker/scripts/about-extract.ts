@@ -6,7 +6,7 @@
  * changes materially, then re-run `npm run build:context`.
  */
 
-export const ABOUT_HERO = `Tanmay Raut is an ERP systems engineer based in Phoenix, Arizona. Since 2020 he has been designing how manufacturing businesses operate through their systems — from the factory floor to the financial statements. Outside of work he plays soccer, travels, and reads philosophy and markets.`;
+export const ABOUT_HERO = `Tanmay Raut is an ERP and business systems owner based in Phoenix, Arizona. Since 2020 he has been designing how manufacturing businesses operate through their systems — from the factory floor to the financial statements. He does not hand-write code: he maps the process, designs the solution, and directs AI development tools (Claude) and developers to build it, then tests, deploys, and owns the result. Outside of work he plays soccer, travels, and reads philosophy and markets.`;
 
 export interface IdentityCard {
   title: string;

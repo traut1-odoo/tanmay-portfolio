@@ -133,7 +133,7 @@ export default function About() {
                 About.
               </h1>
               <p className="text-xl text-gray-800 dark:text-white/90 leading-relaxed mb-4 backdrop-blur-sm bg-white/30 dark:bg-black/30 rounded-xl px-4 py-2 inline-block">
-                I&apos;m an ERP systems engineer based in sunny Phoenix, Arizona.
+                I&apos;m an ERP and business systems owner based in sunny Phoenix, Arizona.
               </p>
               <p className="text-gray-700 dark:text-white/75 leading-relaxed max-w-lg backdrop-blur-sm bg-white/30 dark:bg-black/30 rounded-xl px-4 py-3">
                 Since 2020, I&apos;ve been designing how manufacturing businesses operate through their
@@ -290,7 +290,7 @@ export default function About() {
           <div className="text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Want to work together?</h2>
             <p className="text-text-secondary mb-8 max-w-md mx-auto">
-              I&apos;m open to ERP consulting, systems architecture, and AI integration projects.
+              I&apos;m open to ERP leadership, business systems consulting, and AI-enabled process work.
             </p>
             <Link href="/contact" className="group link-arrow px-8 py-4 bg-foreground text-background rounded-full text-sm font-medium hover:opacity-90 transition-opacity">
               Get In Touch <ArrowRight className="w-4 h-4" />

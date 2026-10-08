@@ -155,7 +155,7 @@ export default function Home() {
                   What I Do
                 </h2>
                 <p className="text-text-secondary text-sm leading-relaxed max-w-sm">
-                  I own the ERP strategy, design, and rollout across 8 departments — scoping requirements, configuring workflows, directing developers, and training teams. I architect the system; my dev team codes what I design.
+                  I own ERP strategy, design, and rollout across 8 departments — mapping processes, scoping requirements, configuring Odoo, and training teams. I don't write code. I design the system and direct AI development tools and developers to build exactly what the business needs.
                 </p>
               </div>
               <Link href="/projects" className="link-arrow text-sm text-accent hover:text-accent-hover transition-colors mt-4">
@@ -168,7 +168,7 @@ export default function Home() {
               <div>
                 <div className="text-xs text-text-secondary uppercase tracking-wider mb-4">Core Skills</div>
                 <div className="flex flex-wrap gap-1.5">
-                  {["Odoo ERP", "AI/MCP", "Manufacturing", "Accounting", "Python"].map((s) => (
+                  {["Odoo ERP", "Process Design", "Manufacturing", "Cost Accounting", "AI-Directed Delivery"].map((s) => (
                     <span key={s} className="px-2.5 py-1 text-[11px] rounded-full border border-border bg-surface-hover text-text-secondary">{s}</span>
                   ))}
                 </div>

@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { AnimatePresence, motion, useMotionValue, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
-import { ArrowRight, Check, ChevronRight, CircleDot, Layers, Package, RotateCcw, Search, ShieldCheck } from "lucide-react";
+import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useScroll, useTransform, type MotionValue } from "framer-motion";
+import { ArrowRight, Check, ArrowDown, Box, FileText, Layers, Package, RotateCcw, Search, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import "./work-journey.css";
 
@@ -12,7 +12,7 @@ const chapters = [
     label: "Commerce", system: "Heckler Headless", title: "Behind every order,", emphasis: "a whole business.",
     description: "Connecting the dealer’s quote to stock, production and a delivery promise the team can keep.",
     role: "My contributions connect dealer ordering, manufacturing, reporting and partner workflows in Heckler’s shared platform.",
-    href: "/projects/heckler-headless", link: "Explore the Headless work", accent: "#c4ed9b", layer: "CUSTOMER EXPERIENCE", base: "ODOO / BUSINESS RECORDS", tag: "Commerce · Planning · Partners",
+    href: "/projects/heckler-headless", link: "Explore the Headless work", accent: "#345f3b", layer: "CUSTOMER EXPERIENCE", base: "ODOO / BUSINESS RECORDS", tag: "Commerce · Planning · Partners",
   },
   {
     label: "Operations", system: "Odoo operations", title: "The return arrives.", emphasis: "What happens next?",
@@ -24,7 +24,7 @@ const chapters = [
     label: "Suppliers", system: "Supplier portal", title: "One shared view.", emphasis: "Fewer loose ends.",
     description: "An 8,441-row spreadsheet became a shared workspace for staff and suppliers.",
     role: "I mapped the process, designed the staff and supplier workflows, and directed the build around Odoo.",
-    href: "/projects/vendor-management-portal", link: "Explore the supplier portal", accent: "#f5bf8d", layer: "SUPPLIER COLLABORATION", base: "ODOO / SHARED RECORDS", tag: "8 modules · Two workspaces",
+    href: "/projects/vendor-management-portal", link: "Explore the supplier portal", accent: "#8e542a", layer: "SUPPLIER COLLABORATION", base: "ODOO / SHARED RECORDS", tag: "8 modules · Two workspaces",
   },
   {
     label: "AI tools", system: "Odoo + MCP", title: "Ask a question.", emphasis: "Follow the evidence.",
@@ -56,6 +56,25 @@ function galleryPosition(value: number) {
   return chapter + (value - chapterEnds[chapter]) / (chapterStarts[chapter + 1] - chapterEnds[chapter]);
 }
 
+function ProductDrawing({ step, packaged, accent, duration }: { step: number; packaged: boolean; accent: string; duration: number }) {
+  return (
+    <motion.svg viewBox="0 0 180 175" animate={{ rotate: step === 1 ? -5 : 0 }} transition={{ duration }} aria-hidden="true">
+      <ellipse cx="90" cy="153" rx="66" ry="9" fill="currentColor" opacity=".08" />
+      <motion.path initial={false} animate={{ y: step === 1 ? 13 : 0 }} transition={{ duration }} d="M56 126L110 112L149 130L91 147Z" fill="#75848b" stroke="#a9b5bc" />
+      <path d="M83 52L105 47L114 116L91 126Z" fill="#50616a" stroke="#acb7bc" />
+      <motion.g initial={false} animate={{ y: step === 1 ? -10 : 0 }} transition={{ duration }}>
+        <path d="M26 29L113 9L148 72L58 96Z" fill="#2c3d44" stroke="#b4c1c4" strokeWidth="2" />
+        <path d="M34 34L108 17L137 67L62 87Z" fill="#17282e" stroke="#59717b" />
+        <path d="M52 49L101 37M57 59L118 43M63 69L91 62" stroke="#c4ed9b" opacity=".7" />
+      </motion.g>
+      <motion.g initial={false} animate={{ opacity: packaged ? 1 : 0, y: packaged ? 0 : 18 }} transition={{ duration }}>
+        <path d="M14 71L87 44L166 70V139L92 167L14 137Z" fill={accent} fillOpacity=".1" stroke={accent} strokeWidth="1.5" />
+        <path d="M14 71L92 99L166 70M92 99V167M52 57L128 85V106" stroke={accent} strokeWidth="1.5" />
+      </motion.g>
+    </motion.svg>
+  );
+}
+
 function JourneyScene({ chapter, progress }: { chapter: number; progress: MotionValue<number> }) {
   const reduced = useReducedMotion();
   const [scrollStep, setScrollStep] = useState(0);
@@ -66,10 +85,8 @@ function JourneyScene({ chapter, progress }: { chapter: number; progress: Motion
   const view = viewOverride ?? (scrollStep > 0 ? "Supplier" : "Staff");
   const answer = answerOverride ?? scrollStep > 0;
   const info = chapters[chapter];
-  const tilt = useTransform(progress, value => Math.max(-1, Math.min(1, galleryPosition(value) - chapter)) * -12);
-  const rise = useTransform(progress, value => Math.max(-1, Math.min(1, galleryPosition(value) - chapter)) * 24);
-  const sceneScale = useTransform(progress, value => 1 - Math.min(1, Math.abs(galleryPosition(value) - chapter)) * 0.08);
-  const routeReveal = useTransform(progress, value => 0.18 + chapterProgress(value, chapter) * 0.82);
+  const rise = useTransform(progress, value => Math.max(-1, Math.min(1, galleryPosition(value) - chapter)) * 30);
+  const sceneScale = useTransform(progress, value => 1 - Math.min(1, Math.abs(galleryPosition(value) - chapter)) * 0.06);
   useMotionValueEvent(progress, "change", value => {
     const next = Math.min(2, Math.floor(chapterProgress(value, chapter) * 3));
     if (next === scrollStep) return;
@@ -79,84 +96,76 @@ function JourneyScene({ chapter, progress }: { chapter: number; progress: Motion
     setViewOverride(null);
     setAnswerOverride(null);
   });
-  const routes = [
-    "M24 420V95Q24 55 64 55H535Q576 55 576 95V420",
-    "M18 130H65V55H530V130H580V420H530V455H65V420H18Z",
-    "M20 90H140Q180 90 180 130V370Q180 410 140 410H20M580 90H460Q420 90 420 130V370Q420 410 460 410H580",
-    "M30 90L300 28L570 90M30 90L65 410L300 465L535 410L570 90M65 410L535 410",
-  ];
   const stages = chapter === 1 ? ["Receive", "Inspect", "Resolve"] : ["Quote", "Plan", "Deliver"];
-  const duration = reduced ? 0 : 0.65;
-  const packaged = chapter === 1 ? step === 0 : step === 2;
+  const duration = reduced ? 0 : 0.55;
+  const titles = chapter === 1 ? ["Parcel received", "Inspection recorded", "Ready for handoff"] : ["Quote prepared", "Build requirements", "Delivery promise"];
+  const descriptions = chapter === 1
+    ? ["Match the arrival to the return. Keep partial arrivals visible.", "Record the condition. Choose restock or scrap with the evidence attached.", "Pass the outcome to accounting so the credit can be reviewed."]
+    : ["One place for the dealer to review items and documents.", "Check parts, quantities and production work behind the order.", "Carry the plan into an update the customer can understand."];
+  const nextStep = <Button className="workflow-next" variant="ghost" onClick={() => setStepOverride((step + 1) % 3)}>{step === 2 ? "Start again" : `Continue to ${stages[step + 1].toLowerCase()}`} {step === 2 ? <RotateCcw size={15} /> : <ArrowRight size={15} />}</Button>;
 
   return (
     <div className="journey-scene" style={{ "--chapter-accent": info.accent } as React.CSSProperties}>
-      <svg className="journey-workflow-map" viewBox="0 0 600 500" fill="none" aria-hidden="true">
-        <path d={routes[chapter]} stroke="currentColor" strokeOpacity="0.14" />
-        <motion.path d={routes[chapter]} stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.55" style={{ pathLength: reduced ? 1 : routeReveal }} />
-        {[{ x: 30, y: 90 }, { x: 570, y: 90 }, { x: 65, y: 410 }, { x: 535, y: 410 }].map((point, i) => <rect key={i} x={point.x - 4} y={point.y - 4} width="8" height="8" rx="2" fill="currentColor" opacity="0.65" />)}
-      </svg>
-      <motion.div className="journey-system" style={{ rotateY: reduced ? 0 : tilt, y: reduced ? 0 : rise, scale: reduced ? 1 : sceneScale }}>
-        <motion.div className="journey-backplate" animate={{ rotate: [0, 1, -1, 0][chapter], x: [30, -10, 20, 0][chapter] }} transition={{ duration }}>
-          <Layers size={15} /><span>{info.base}</span><span className="journey-led" />
-        </motion.div>
-        <motion.div className="journey-connector" initial={false} animate={{ scaleY: 1 }} aria-hidden="true" />
-        <motion.div className="journey-window" initial={reduced ? false : { opacity: 0, y: 48, rotateX: 12, scale: 0.92 }} animate={{ opacity: 1, y: 0, rotateX: 0, scale: 1 }} transition={{ duration, ease: [0.22, 1, 0.36, 1] }}>
-          <div className="journey-window-bar"><span><CircleDot size={13} /> {info.system}</span><span className="journey-demo-label">Demo</span></div>
-          <div className="journey-window-body">
-            {chapter < 2 && <>
-              <div className="journey-window-heading"><div><span className="journey-micro">{chapter === 1 ? "CUSTOMER RETURN" : "DEALER WORKSPACE"}</span><h4>{chapter === 1 ? "A clear next step." : "An order taking shape."}</h4></div><Package className="journey-package-icon" size={28} /></div>
-              <div className="journey-stage-tabs" aria-label={chapter === 1 ? "Return stages" : "Order stages"}>
-                {stages.map((name, i) => <Button key={name} variant="ghost" aria-pressed={step === i} onClick={() => setStepOverride(i)} className="journey-stage-button"><span>{i < step ? <Check size={12} /> : `0${i + 1}`}</span>{name}</Button>)}
-              </div>
-              <div className="journey-track"><motion.span animate={{ width: `${(step + 1) / 3 * 100}%` }} transition={{ duration }} /></div>
-              <div className="journey-order-content">
-                <div className="journey-object" aria-hidden="true">
-                  <motion.svg viewBox="0 0 180 175" animate={{ rotate: step === 1 ? -5 : 0 }} transition={{ duration }}>
-                    <defs><linearGradient id={`stand-metal-${chapter}`} x1="0" y1="0" x2="1" y2="1"><stop stopColor="#ccd4dc" /><stop offset="0.48" stopColor="#59646e" /><stop offset="1" stopColor="#252e36" /></linearGradient></defs>
-                    <ellipse cx="90" cy="153" rx="66" ry="9" fill="#000" opacity=".3" />
-                    <motion.path initial={false} animate={{ y: step === 1 ? 13 : 0 }} transition={{ duration }} d="M56 126 L110 112 L149 130 L91 147 Z" fill={`url(#stand-metal-${chapter})`} stroke="#8b979f" />
-                    <path d="M83 52 L105 47 L114 116 L91 126 Z" fill={`url(#stand-metal-${chapter})`} stroke="#8b979f" />
-                    <motion.g initial={false} animate={{ y: step === 1 ? -10 : 0 }} transition={{ duration }}>
-                    <path d="M26 29 L113 9 L148 72 L58 96 Z" fill="#27343c" stroke="#a3adb4" strokeWidth="2" />
-                    <path d="M34 34 L108 17 L137 67 L62 87 Z" fill="#10181c" stroke="#4d6470" />
-                    <path d="M52 49 L101 37 M57 59 L118 43 M63 69 L91 62" stroke={info.accent} opacity=".6" />
-                    <circle cx="93" cy="78" r="1.5" fill="#cdd3d8" />
-                    </motion.g>
-                    <motion.g initial={false} animate={{ opacity: packaged ? 1 : 0, y: packaged ? 0 : 18 }} transition={{ duration }}>
-                      <path d="M14 71L87 44L166 70V139L92 167L14 137Z" fill={info.accent} fillOpacity=".12" stroke={info.accent} strokeWidth="1.5" />
-                      <path d="M14 71L92 99L166 70M92 99V167M52 57L128 85V106" stroke={info.accent} strokeWidth="1.5" />
-                    </motion.g>
-                  </motion.svg>
-                  <span>Sample product</span>
-                </div>
-                <AnimatePresence mode="wait" initial={false}>
-                  <motion.div key={step} className="journey-record" initial={reduced ? false : { opacity: 0, x: 22 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? 0 : 0.25 }}>
-                    <span className="journey-micro">{chapter === 1 ? "RETURN / EXAMPLE 024" : "ORDER / EXAMPLE 024"}</span>
-                    <h5>{chapter === 1 ? ["Parcel received", "Inspection recorded", "Ready for handoff"][step] : ["Quote prepared", "Build requirements", "Delivery promise"][step]}</h5>
-                    <p>{chapter === 1 ? ["Match the arrival to the return. Keep partial arrivals visible.", "Record the condition. Choose restock or scrap with the evidence attached.", "Pass the outcome to accounting so the credit can be reviewed."][step] : ["One place for the dealer to review items and documents.", "Check parts, quantities and production work behind the order.", "Carry the plan into an update the customer can understand."][step]}</p>
-                    <span className="journey-record-status"><Check size={12} />{chapter === 1 ? ["Receiving", "Quality review", "Accounting review"][step] : ["Dealer", "Operations", "Customer"][step]}</span>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-              <Button className="journey-action" variant="ghost" onClick={() => setStepOverride((step + 1) % 3)}>{step === 2 ? "Start again" : `Continue to ${stages[step + 1].toLowerCase()}`} {step === 2 ? <RotateCcw size={14} /> : <ArrowRight size={14} />}</Button>
-            </>}
-            {chapter === 2 && <>
-              <div className="journey-window-heading"><div><span className="journey-micro">TWO SIDES / ONE RECORD</span><h4>The same order. In context.</h4></div><ShieldCheck size={26} className="journey-package-icon" /></div>
-              <div className="journey-stage-tabs" aria-label="Portal perspectives">{["Staff", "Supplier"].map(name => <Button key={name} variant="ghost" className="journey-stage-button" aria-pressed={view === name} onClick={() => setViewOverride(name)}>{name} view</Button>)}</div>
-              <div className="journey-supplier-record"><span className="journey-micro">PURCHASE ORDER / SAMPLE 024</span><h5>Aluminium components</h5><div className="journey-table"><span>Ordered</span><strong>120 units</strong><span>Received</span><strong>80 units</strong><span>Remaining</span><strong style={{ color: info.accent }}>40 units</strong></div></div>
-              <AnimatePresence mode="wait" initial={false}><motion.p key={view} className="journey-permission" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: reduced ? 0 : 0.2 }}><ShieldCheck size={15} />{view === "Staff" ? "Staff review pricing, receipts and the full order history." : "Suppliers see their own orders and provide delivery updates."}</motion.p></AnimatePresence>
-            </>}
-            {chapter === 3 && <>
-              <div className="journey-window-heading"><div><span className="journey-micro">QUESTION → TOOL → RECORD</span><h4>Less digging. More context.</h4></div><Search size={26} className="journey-package-icon" /></div>
-              <div className="journey-query">Which parts need attention?<span>↵</span></div>
-              <div className="journey-query-route"><span>Question</span><ChevronRight size={14} /><span>MCP tool</span><ChevronRight size={14} /><span>Odoo records</span></div>
-              <motion.div className="journey-query-result" animate={{ opacity: answer ? 1 : 0.38, y: answer || reduced ? 0 : 8 }} transition={{ duration }}><span className="journey-micro">ILLUSTRATIVE RESPONSE</span><h5>{answer ? "Two parts to review." : "The answer starts with the source."}</h5><p>{answer ? "One component is short against planned builds. Another needs its expected delivery checked. Review the records before changing the plan." : "A structured query brings the relevant records into the conversation."}</p>{answer && <span className="journey-record-status"><Check size={12} /> Context attached</span>}</motion.div>
-              <Button variant="ghost" className="journey-action" onClick={() => setAnswerOverride(!answer)}>{answer ? "Reset example" : "Trace the question"}{answer ? <RotateCcw size={14} /> : <ArrowRight size={14} />}</Button>
-            </>}
+      <motion.div className={`workflow-composition workflow-${chapter}`} style={{ y: reduced ? 0 : rise, scale: reduced ? 1 : sceneScale }}>
+        {chapter === 0 && <div className="commerce-conveyor">
+          <div className="commerce-stations" aria-label="Order stages">
+            {stages.map((name, i) => <Button key={name} variant="ghost" className="commerce-station" aria-pressed={step === i} onClick={() => setStepOverride(i)}><span>{i < step ? <Check size={13} /> : `0${i + 1}`}</span>{name}</Button>)}
+            <div className="commerce-rail" aria-hidden="true"><motion.span animate={{ scaleX: (step + 1) / 3 }} transition={{ duration }} /></div>
           </div>
-        </motion.div>
-        <motion.div className="journey-front-tag" initial={reduced ? false : { x: 30, opacity: 0 }} animate={{ x: 0, opacity: 1 }} transition={{ duration, delay: reduced ? 0 : 0.15 }}><span className="journey-led" />{info.layer}</motion.div>
+          <div className="commerce-artifacts">
+            <motion.div className="commerce-ticket" animate={{ rotate: step === 0 ? -5 : -2, y: step === 0 ? -5 : 3 }} transition={{ duration }}>
+              <FileText size={19} /><span>ORDER / 024</span><h4>Dealer<br />quote.</h4><div className="ticket-rule" /><p>Items<br />Documents<br />One workspace</p><div className="ticket-barcode" aria-hidden="true" />
+            </motion.div>
+            <div className="commerce-product"><ProductDrawing step={step} packaged={step === 2} accent={info.accent} duration={duration} /><span>Sample product</span></div>
+            <motion.div className="commerce-dispatch" animate={{ opacity: step === 2 ? 1 : 0.45, y: step === 2 ? -3 : 9 }} transition={{ duration }}>
+              <Package size={22} /><span>DELIVERY</span><strong>A promise<br />you can keep.</strong><span className="dispatch-check"><Check size={13} />{step === 2 ? "Plan carried through" : "Plan comes first"}</span>
+            </motion.div>
+          </div>
+          <div className="commerce-detail"><h4>{titles[step]}</h4><p>{descriptions[step]}</p></div>
+          {nextStep}
+        </div>}
+
+        {chapter === 1 && <div className="operations-workbench">
+          <div className="bench-heading"><span>RETURN / EXAMPLE 024</span><span className="bench-status">{["Receiving", "Quality review", "Accounting review"][step]}</span></div>
+          <div className="bench-surface">
+            <div className="bench-stages" aria-label="Return stages">{stages.map((name, i) => <Button key={name} variant="ghost" className="bench-stage" aria-pressed={step === i} onClick={() => setStepOverride(i)}><span>0{i + 1}</span>{name}{step === i && <ArrowRight size={13} />}</Button>)}</div>
+            <div className="bench-specimen">
+              <span className="bench-cross bench-cross-top" aria-hidden="true">+</span><span className="bench-cross bench-cross-bottom" aria-hidden="true">+</span>
+              <ProductDrawing step={step} packaged={step === 0} accent={info.accent} duration={duration} />
+              <motion.div className="inspection-line" animate={{ top: step === 1 ? "73%" : "23%", opacity: step === 1 ? 1 : 0 }} transition={{ duration: reduced ? 0 : 0.9 }} aria-hidden="true" />
+              <span>ILLUSTRATIVE INSPECTION</span>
+            </div>
+          </div>
+          <div className="bench-disposition"><h4>{titles[step]}</h4><p>{descriptions[step]}</p></div>
+          {nextStep}
+        </div>}
+
+        {chapter === 2 && <div className="supplier-workspace">
+          <div className="supplier-perspectives" aria-label="Portal perspectives">{["Staff", "Supplier"].map(name => <Button key={name} variant="ghost" className="supplier-perspective" aria-pressed={view === name} onClick={() => setViewOverride(name)}>{name === "Staff" ? <Layers size={15} /> : <Box size={15} />}{name} view</Button>)}</div>
+          <div className="supplier-documents">
+            <motion.div className="supplier-document staff-document" data-focused={view === "Staff"} animate={{ rotate: view === "Staff" ? -3 : -1, y: view === "Staff" ? -4 : 3 }} transition={{ duration }}>
+              <span>INTERNAL WORKSPACE</span><h4>Purchase<br />order 024</h4><p>Aluminium components</p><div className="document-rule" /><ul><li><Check size={11} /> Pricing</li><li><Check size={11} /> Receipts</li><li><Check size={11} /> Order history</li></ul>
+            </motion.div>
+            <div className="supplier-bridge" aria-hidden="true"><span /><ArrowRight size={17} /><span /></div>
+            <motion.div className="supplier-document vendor-document" data-focused={view === "Supplier"} animate={{ rotate: view === "Supplier" ? 3 : 1, y: view === "Supplier" ? -4 : 3 }} transition={{ duration }}>
+              <span>SUPPLIER WORKSPACE</span><h4>The same<br />order.</h4><p>Aluminium components</p><div className="document-rule" /><strong>40 <small>units remaining</small></strong><p>Delivery updates for<br />your own orders.</p>
+            </motion.div>
+          </div>
+          <div className="supplier-reconciliation"><div><strong>120</strong><span>ordered</span></div><span>−</span><div><strong>80</strong><span>received</span></div><span>=</span><div><strong>40</strong><span>remaining</span></div></div>
+          <p className="supplier-permission"><ShieldCheck size={15} />{view === "Staff" ? "Staff review pricing, receipts and the full order history." : "Suppliers see their own orders and provide delivery updates."}</p>
+        </div>}
+
+        {chapter === 3 && <div className="ai-trace">
+          <div className="ai-question"><span>01 / QUESTION</span><h4>Which parts<br />need attention?</h4><Search size={22} /></div>
+          <div className="ai-tool-path"><div className="ai-trace-line" /><motion.div className="ai-tool-node" animate={{ borderColor: answer ? info.accent : "#80798e", scale: answer ? 1 : 0.94 }} transition={{ duration }}><Layers size={16} /><span>MCP tool</span></motion.div><ArrowDown size={15} /></div>
+          <div className="ai-evidence-branches">
+            <svg viewBox="0 0 400 26" preserveAspectRatio="none" aria-hidden="true"><motion.path d="M200 0V10H90V26M200 10H310V26" fill="none" stroke="currentColor" strokeWidth="1" animate={{ pathLength: answer ? 1 : 0.25 }} transition={{ duration }} /></svg>
+            <motion.div className="ai-evidence" animate={{ opacity: answer ? 1 : 0.4, y: answer || reduced ? 0 : 7 }} transition={{ duration }}><span>ODOO RECORDS</span><strong>Stock + builds</strong><p>{answer ? "Component shortfall" : "Check requirements"}</p></motion.div>
+            <motion.div className="ai-evidence" animate={{ opacity: answer ? 1 : 0.4, y: answer || reduced ? 0 : 7 }} transition={{ duration, delay: reduced ? 0 : 0.08 }}><span>ODOO RECORDS</span><strong>Expected delivery</strong><p>{answer ? "Delivery needs review" : "Check the incoming plan"}</p></motion.div>
+          </div>
+          <div className="ai-result"><span>ILLUSTRATIVE RESPONSE</span><h4>{answer ? "Two parts to review." : "The answer starts with the source."}</h4><p>{answer ? "One component is short against planned builds. Another needs its expected delivery checked. Review the records before changing the plan." : "A structured query brings the relevant records into the conversation."}</p></div>
+          <Button variant="ghost" className="workflow-next" onClick={() => setAnswerOverride(!answer)}>{answer ? "Reset example" : "Trace the question"}{answer ? <RotateCcw size={15} /> : <ArrowRight size={15} />}</Button>
+        </div>}
       </motion.div>
       <p className="journey-scene-caption">Recreated workflow · Sample data</p>
     </div>

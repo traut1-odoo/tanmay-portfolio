@@ -7,6 +7,8 @@ import { motion, useInView, useReducedMotion, useScroll, useTransform } from "fr
 import { ArrowDown, ArrowUpRight, Layers3, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { projects } from "@/data/projects";
+import { WorkbenchCostPanel } from "./workbench-cost-panel";
+import { SAMPLE_PARTS, SAMPLE_OPERATIONS, calculateCosts, makeInitialCosts, formatCost, type PartId, type OperationId } from "@/lib/workbench-costs";
 import "./product-workbench.css";
 
 const AssemblyScene = dynamic(() => import("./assembly-scene"), { ssr: false, loading: () => <div className="assembly-fallback">Opening the workbench…</div> });
@@ -50,9 +52,9 @@ class SceneBoundary extends Component<{ children: ReactNode; onUnavailable: () =
 }
 
 const details = [
-  { label: "Materials", value: "Parts & purchase cost", text: "Start with what goes into the product." },
-  { label: "Operations", value: "Time & work centres", text: "Add the work it takes to make it." },
-  { label: "The full picture", value: "A cost you can explain", text: "Connect the bill of materials to the numbers." },
+  { label: "Materials", value: "Parts & purchase cost" },
+  { label: "Operations", value: "Time & work centres" },
+  { label: "The full picture", value: "A cost you can explain" },
 ];
 
 export function ProductWorkbench() {
@@ -66,10 +68,24 @@ export function ProductWorkbench() {
   const [rotation, setRotation] = useState(0);
   const [finish, setFinish] = useState<"graphite" | "silver">("graphite");
   const [detail, setDetail] = useState(0);
+  const [inputs, setInputs] = useState(makeInitialCosts);
+  const [partId, setPartId] = useState<PartId>("base");
+  const [operationId, setOperationId] = useState<OperationId>("fabrication");
   const [sceneUnavailable, setSceneUnavailable] = useState(false);
   const handleSceneUnavailable = useCallback(() => setSceneUnavailable(true), []);
   const startDrag = useRef<{ x: number; rotation: number } | null>(null);
   const line = useTransform(scrollYProgress, [0.05, 0.8], [0, 1]);
+  const costs = calculateCosts(inputs);
+  const operation = SAMPLE_OPERATIONS.find(item => item.id === operationId)!;
+  const part = SAMPLE_PARTS.find(item => item.id === partId)!;
+  const focusedParts = detail === 0 ? [partId] : detail === 1 ? operation.partIds : [];
+  const selectMode = (index: number) => {
+    setDetail(index);
+    if (!sceneUnavailable) setExplode(index === 0 ? 1 : index === 1 ? 0.65 : 0);
+  };
+  const selectPart = (id: PartId) => { setPartId(id); selectMode(0); };
+  const selectOperation = (id: OperationId) => { setOperationId(id); selectMode(1); };
+  const resetCosts = () => { setInputs(makeInitialCosts()); };
 
   return (
     <section id="under-the-surface" ref={ref} className="product-workbench" aria-labelledby="workbench-title">
@@ -77,24 +93,28 @@ export function ProductWorkbench() {
       <div className="workbench-layout">
         <div className="workbench-story">
           <h2 id="workbench-title">A product.<br /><em>A hundred decisions.</em></h2>
-          <p>What goes into it. Who makes it. What it really costs. I connect those details in Odoo.</p>
+          <p>Parts, production time and cost. Change the inputs on this example stand and see how they add up.</p>
           <div className="workbench-detail-list" role="group" aria-label="Explore manufacturing costs">
-            {details.map((item, i) => <Button key={item.label} variant="ghost" className="workbench-detail" aria-pressed={detail === i} onClick={() => { setDetail(i); if (!sceneUnavailable) setExplode(i === 0 ? 1 : i === 1 ? 0.55 : 0); }}>
+            {details.map((item, i) => <Button key={item.label} variant="ghost" className="workbench-detail" aria-pressed={detail === i} onClick={() => selectMode(i)}>
               <span className="workbench-detail-number">0{i + 1}</span><span><small>{item.label}</small><strong>{item.value}</strong></span><ArrowUpRight size={18} />
             </Button>)}
           </div>
-          <p className="workbench-note" aria-live="polite">{details[detail].text}</p>
-          <Link href="/projects/manufacturing-cost-accounting" className="workbench-case">How I approached costing <ArrowUpRight size={17} /></Link>
+          <WorkbenchCostPanel mode={detail} inputs={inputs} costs={costs} partId={partId} operationId={operationId} onPart={selectPart} onOperation={selectOperation}
+            onUnitCost={(id, value) => setInputs(current => ({ ...current, unitCosts: { ...current.unitCosts, [id]: value } }))}
+            onMinutes={(id, value) => setInputs(current => ({ ...current, minutes: { ...current.minutes, [id]: value } }))}
+            onHourlyRate={(id, value) => setInputs(current => ({ ...current, hourlyRates: { ...current.hourlyRates, [id]: value } }))}
+            onMode={selectMode} onReset={resetCosts} />
+          <Link href="/projects/manufacturing-cost-accounting" className="workbench-case">How I connected costing in Odoo <ArrowUpRight size={17} /></Link>
         </div>
         <div className="workbench-artifact">
-          <div className="workbench-artifact-label"><span><span className="workbench-dot" /> Assembly study / 001</span><span role="status">{sceneUnavailable ? "3D unavailable · Static view" : "Interactive 3D"}</span></div>
+          <div className="workbench-artifact-label"><span><span className="workbench-dot" /> Example stand / 001</span><span>{formatCost(costs.totalCents)} / stand</span></div>
           <div ref={stage} className="workbench-stage" role="img" style={sceneUnavailable ? { cursor: "default" } : undefined} aria-label={sceneUnavailable ? "Static assembly diagram showing the device, mount, support and base separated vertically. 3D is unavailable; the manufacturing cost topics remain available." : "Interactive illustrative tablet stand. Scroll to separate its device, mount, support and base. Use the controls below to rotate or assemble it."}
-            onPointerDown={event => { if (sceneUnavailable || event.button !== 0) return; startDrag.current = { x: event.clientX, rotation }; event.currentTarget.setPointerCapture(event.pointerId); }}
+            onPointerDown={event => { if (sceneUnavailable || event.button !== 0) return; startDrag.current = { x: event.clientX, rotation }; if (event.target instanceof Element) event.target.setPointerCapture(event.pointerId); }}
             onPointerMove={event => { if (!sceneUnavailable && startDrag.current) setRotation(Math.max(-180, Math.min(180, startDrag.current.rotation + (event.clientX - startDrag.current.x) * 0.5))); }}
             onPointerUp={() => { startDrag.current = null; }} onPointerCancel={() => { startDrag.current = null; }}>
             <div className="workbench-technical-grid" aria-hidden="true" />
-            <span className="workbench-axis workbench-axis-top">DEVICE</span><span className="workbench-axis workbench-axis-bottom">MATERIAL / PROCESS / COST</span>
-            {sceneUnavailable ? <AssemblyDiagram /> : seen && <SceneBoundary onUnavailable={handleSceneUnavailable}><AssemblyScene progress={assemblyProgress} explode={explode} rotation={rotation} finish={finish} reduced={!!reduced} onUnavailable={handleSceneUnavailable} fallback={<AssemblyDiagram />} /></SceneBoundary>}
+            <span className="workbench-axis workbench-axis-top">{detail === 0 ? `${part.name} selected` : detail === 1 ? `${operation.name} / ${operation.workCentre}` : "Complete stand"}</span><span className="workbench-axis workbench-axis-bottom">CUSTOMER DEVICE EXCLUDED</span>
+            {sceneUnavailable ? <AssemblyDiagram /> : seen && <SceneBoundary onUnavailable={handleSceneUnavailable}><AssemblyScene progress={assemblyProgress} explode={explode} rotation={rotation} finish={finish} reduced={!!reduced} focusedParts={focusedParts} onSelectPart={selectPart} onUnavailable={handleSceneUnavailable} fallback={<AssemblyDiagram />} /></SceneBoundary>}
           </div>
           <div className="workbench-tools">
             <div className="workbench-view-buttons" role="group" aria-label="Assembly view">
@@ -102,10 +122,10 @@ export function ProductWorkbench() {
               <Button variant="ghost" disabled={sceneUnavailable} aria-pressed={explode === 1} onClick={() => setExplode(1)}><Layers3 size={14} /> Take apart</Button>
               <Button variant="ghost" disabled={sceneUnavailable} aria-label="Reset model to scroll control" title="Reset model to scroll control" onClick={() => { setExplode(null); setRotation(0); }}><RotateCcw size={15} /></Button>
             </div>
-            <div className="workbench-finishes" role="group" aria-label="Stand finish"><Button variant="ghost" disabled={sceneUnavailable} aria-label="Graphite finish" aria-pressed={finish === "graphite"} onClick={() => setFinish("graphite")}><span style={{ background: "#343d42" }} /></Button><Button variant="ghost" disabled={sceneUnavailable} aria-label="Silver finish" aria-pressed={finish === "silver"} onClick={() => setFinish("silver")}><span style={{ background: "#b8c1c9" }} /></Button></div>
+            <div className="workbench-finishes" role="group" aria-label="Preview finish only; cost unchanged"><Button variant="ghost" disabled={sceneUnavailable} aria-label="Graphite finish preview" aria-pressed={finish === "graphite"} onClick={() => setFinish("graphite")}><span style={{ background: "#343d42" }} /></Button><Button variant="ghost" disabled={sceneUnavailable} aria-label="Silver finish preview" aria-pressed={finish === "silver"} onClick={() => setFinish("silver")}><span style={{ background: "#b8c1c9" }} /></Button></div>
           </div>
           <label className="workbench-rotation">Rotate <input type="range" min="-180" max="180" disabled={sceneUnavailable} aria-valuetext={`${Math.round(rotation)} degrees`} value={rotation} onChange={event => setRotation(Number(event.target.value))} /><span>{Math.round(rotation)}°</span></label>
-          <div className="workbench-artifact-footer"><span><ArrowDown size={13} /> {sceneUnavailable ? "Static diagram. Explore the cost topics alongside it." : explode === null ? "Scroll to take it apart. Drag to turn." : "Manual view. Reset ↻ to follow scrolling."}</span><span>Illustrative model</span></div>
+          <div className="workbench-artifact-footer"><span><ArrowDown size={13} /> {sceneUnavailable ? "Static diagram. Cost controls still work." : explode === null ? "Scroll to separate. Click a part to inspect." : "Click a part. Drag to turn. ↻ restores scroll."}</span><span role="status">{sceneUnavailable ? "3D unavailable" : "Illustrative model"}</span></div>
         </div>
       </div>
       <div className="workbench-index">

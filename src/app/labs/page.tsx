@@ -29,7 +29,7 @@ export default function LabsPage() {
           </h1>
 
           <p className="text-lg text-text-secondary max-w-xl leading-relaxed">
-            Real tools I&apos;ve built — running live in your browser. Sanitized data, full interactivity.
+            Try the workflows for yourself. These demos use sample data, so you can explore without changing anything at work.
           </p>
         </motion.div>
 
@@ -76,7 +76,7 @@ export default function LabsPage() {
           <div>
             <div className="font-semibold text-sm mb-1">How these are built</div>
             <p className="text-sm text-text-secondary leading-relaxed">
-              Each demo started as a Claude Live Artifact — built during a real work session connected to production data via MCP. Sanitized and ported here so you can see the actual interaction model, not a mockup.
+              These demos began as prototypes in Claude during real work sessions. I’ve adapted them for this site and replaced the production data so you can try the interactions yourself.
             </p>
           </div>
         </motion.div>

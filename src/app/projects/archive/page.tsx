@@ -13,7 +13,7 @@ import { ArchiveRow } from "@/components/projects/archive-row";
 import { YearScale } from "@/components/projects/year-scale";
 import { projects, categories, type ProjectCategory } from "@/data/projects";
 
-const archived = projects.filter((p) => !p.featured);
+const archived = projects;
 
 // Extract year for grouping
 function yearOf(date: string): number {
@@ -72,7 +72,7 @@ export default function ArchivePage() {
             transition={{ duration: 0.7, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
             className="serif-display text-5xl md:text-7xl font-normal tracking-tight leading-[0.95] text-foreground max-w-3xl"
           >
-            Everything else, by year.
+            All the work, by year.
           </motion.h1>
 
           <motion.p
@@ -81,9 +81,9 @@ export default function ArchivePage() {
             transition={{ duration: 0.7, delay: 0.25 }}
             className="mt-6 md:mt-8 serif-prose text-base md:text-lg text-text-secondary max-w-2xl leading-[1.7]"
           >
-            {archived.length} projects across {Object.keys(grouped).length || ""} years. Cost
-            accounting, integrations, dashboards, workflows, academic foundations. Each one shipped
-            something real.
+            {archived.length} projects across {new Set(archived.map((project) => yearOf(project.date))).size} years. Business
+            systems, personal experiments and academic work. Each case explains its purpose,
+            my contribution and what was built.
           </motion.p>
 
           {/* Filter chips */}

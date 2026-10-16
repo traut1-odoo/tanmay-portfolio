@@ -85,8 +85,8 @@ export default function ExperiencePage() {
                 Career Journey.
               </h1>
               <p className="text-text-secondary text-lg max-w-xl leading-relaxed">
-                From managing pressure vessel fabrication on the factory floor to owning the entire ERP
-                stack at a manufacturing company — every role shaped how I think about systems.
+                I started by managing work on the factory floor. Today I look after the ERP
+                that connects manufacturing with the rest of the business.
               </p>
             </div>
           </div>

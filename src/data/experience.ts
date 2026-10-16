@@ -17,9 +17,9 @@ export const experiences: Experience[] = [
     description: "Sole owner of Odoo ERP across 8+ departments, managing system architecture for 500+ active SKUs.",
     highlights: [
       "Lead enterprise-wide ERP strategy and governance across Manufacturing, Procurement, Sales, Finance, Quality, Inventory, CRM, and Shipping",
-      "Integrated manufacturing cost accounting with Odoo Accounting — full cost traceability from production floor to financial statements",
-      "Specified and delivered SQL analytics dashboards (AI-assisted build) for real-time cycle time, yield, and backlog visibility",
-      "Led the AI-assisted build of an AI-to-ERP connector (MCP), now used org-wide for real-time manufacturing analytics",
+      "Connected manufacturing costs to Odoo Accounting, with traceability from production to the financial statements",
+      "Defined the reporting requirements and delivered dashboards for cycle time, yield and backlog",
+      "Led the rollout of an MCP connector so teams can query manufacturing data in Odoo through Claude",
       "Manage cross-platform integrations: Shopify, ShipStation, Stripe, Slack, Avalara",
       "Designed C-SKU cut parts program: 35+ components with multi-level BOMs and machine routings"
     ],
@@ -32,10 +32,10 @@ export const experiences: Experience[] = [
     period: "Oct 2023 - Mar 2024",
     description: "Led Odoo ERP upgrade and launched core financial and manufacturing modules.",
     highlights: [
-      "Led full Odoo 16 to 17 upgrade — end-to-end testing, UAT, department training, post-go-live support",
+      "Led the Odoo 16 to 17 upgrade, including testing, UAT, department training and support after launch",
       "Launched MRP module with automated reordering and procurement automation",
       "Implemented Odoo Accounting as the company's financial system from scratch",
-      "Designed work-order automation logic in Odoo Studio, delivered via AI-assisted configuration with full UAT"
+      "Designed work order automation in Odoo Studio and tested it with the teams using it"
     ],
     type: "erp"
   },

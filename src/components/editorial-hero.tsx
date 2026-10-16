@@ -13,12 +13,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
+import { motion, useScroll, useTransform, useMotionValue, useSpring, useReducedMotion } from "framer-motion";
 import { useRef, useEffect } from "react";
-import { MapPin, Sparkles } from "lucide-react";
+import { MapPin, ArrowDownRight } from "lucide-react";
 
 export function EditorialHero() {
   const heroRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
 
   // Scroll-linked exit — viewport-based to dodge Next 16 hydration race
   // (passing target ref triggers "Target ref defined but not hydrated" in app router)
@@ -62,7 +63,7 @@ export function EditorialHero() {
   return (
     <motion.section
       ref={heroRef}
-      style={{ opacity: heroOpacity, backgroundColor: "var(--background)" }}
+      style={{ opacity: reducedMotion ? 1 : heroOpacity, backgroundColor: "var(--background)" }}
       className="relative w-full overflow-hidden"
     >
       <div className="relative h-[92vh] min-h-[640px] w-full">
@@ -89,15 +90,15 @@ export function EditorialHero() {
         {/* ═══ MASSIVE NAME ═══ */}
         <motion.div
           style={{
-            scale: nameScale,
-            y: nameY,
-            x: nameOffsetX,
-            filter: blurStr,
+            scale: reducedMotion ? 1 : nameScale,
+            y: reducedMotion ? 0 : nameY,
+            x: reducedMotion ? 0 : nameOffsetX,
+            filter: reducedMotion ? "none" : blurStr,
           }}
           className="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-10"
         >
           <motion.h1
-            initial={{ opacity: 0, scale: 1.15, filter: "blur(20px)" }}
+            initial={reducedMotion ? false : { opacity: 0, scale: 1.15, filter: "blur(20px)" }}
             animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
             className="serif-display font-normal tracking-[-0.04em] leading-[1.15] text-center whitespace-nowrap px-4 pb-[0.18em]"
@@ -119,19 +120,19 @@ export function EditorialHero() {
         {/* ═══ CUTOUT HEADSHOT ═══ */}
         <motion.div
           style={{
-            y: photoY,
-            scale: photoScale,
-            x: photoOffsetX,
+            y: reducedMotion ? 0 : photoY,
+            scale: reducedMotion ? 1 : photoScale,
+            x: reducedMotion ? 0 : photoOffsetX,
           }}
           className="absolute inset-0 flex items-end justify-center pointer-events-none z-20"
         >
           {/* Mouse-Y parallax wrapper — 2:3 aspect for full-body portrait */}
           <motion.div
-            style={{ y: photoOffsetY, aspectRatio: "2 / 3" }}
+            style={{ y: reducedMotion ? 0 : photoOffsetY, aspectRatio: "2 / 3" }}
             className="relative h-[92%] max-h-[880px]"
           >
           <motion.div
-            initial={{ opacity: 0, y: 80, scale: 0.92 }}
+            initial={reducedMotion ? false : { opacity: 0, y: 80, scale: 0.92 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             transition={{ duration: 1.1, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
             className="relative w-full h-full"
@@ -158,7 +159,7 @@ export function EditorialHero() {
 
         {/* ═══ BOTTOM-LEFT TAGLINE ═══ */}
         <motion.div
-          initial={{ opacity: 0, y: 16 }}
+          initial={reducedMotion ? false : { opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.6, ease: [0.16, 1, 0.3, 1] }}
           className="absolute bottom-8 left-6 md:bottom-12 md:left-10 z-30 max-w-md"
@@ -173,27 +174,27 @@ export function EditorialHero() {
           </h2>
           <p className="mt-3 text-xs md:text-sm font-mono text-text-secondary flex items-center gap-2">
             <MapPin className="w-3 h-3" />
-            Phoenix, AZ · Heckler Design · 8 depts
+            Phoenix, Arizona · Heckler Design
           </p>
         </motion.div>
 
         {/* ═══ BOTTOM-RIGHT BADGE ═══ */}
         <motion.div
-          initial={{ opacity: 0, y: 16, scale: 0.9 }}
+          initial={reducedMotion ? false : { opacity: 0, y: 16, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.8, delay: 0.75, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute bottom-8 right-6 md:bottom-12 md:right-10 z-30"
+          className="absolute top-24 right-5 md:top-auto md:bottom-12 md:right-10 z-30"
         >
           <Link
-            href="/case-studies"
+            href="#my-journey"
             className="group flex items-center gap-3 px-4 py-3 rounded-2xl border border-border bg-surface-hover backdrop-blur-md hover:border-accent/50 transition-all"
           >
-            <Sparkles className="w-4 h-4 text-accent" />
+            <ArrowDownRight className="w-5 h-5 text-foreground" />
             <div className="text-right">
               <p className="text-[10px] font-mono uppercase tracking-widest text-text-secondary">
-                Read the case studies
+                Start here
               </p>
-              <p className="text-sm font-medium text-foreground">3 deep dives · live</p>
+              <p className="text-sm font-medium text-foreground">Follow the journey</p>
             </div>
           </Link>
         </motion.div>
@@ -201,7 +202,7 @@ export function EditorialHero() {
         {/* ═══ SCROLL HINT ═══ */}
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5, y: [0, 6, 0] }}
+          animate={reducedMotion ? { opacity: 0.5 } : { opacity: 0.5, y: [0, 6, 0] }}
           transition={{
             opacity: { delay: 1.4, duration: 1 },
             y: { duration: 1.8, repeat: Infinity, ease: "easeInOut" },

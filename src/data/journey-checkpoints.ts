@@ -139,35 +139,30 @@ export function progressToSeason(p: number): Season {
   return "winter";
 }
 
-/**
- * SVG viewBox coordinates of the climbing path.
- * Coordinates match the 1920×1080 image space.
- *
- * Hand-fitted to the generated Ghibli mountain art:
- *   - Base camp village is at lower-left (~360, 720)
- *   - Path switchbacks up to the cloud-shrouded peak near (1080, 250)
- *
- * The Bézier control points produce a switchback feel.
- */
-export const PATH_D =
-  "M 360 720 C 480 700, 560 660, 640 620 C 720 580, 760 600, 820 560 C 880 520, 940 540, 980 480 C 1020 420, 1080 420, 1080 250";
+/** Shared path geometry, fitted to the painted trail in the 1920×1080 world. */
+type Point = [number, number];
+type Curve = [Point, Point, Point, Point];
+const PATH_CURVES: Curve[] = [
+  [[658, 861], [600, 826], [612, 823], [678, 805]],
+  [[678, 805], [810, 768], [700, 756], [576, 717]],
+  [[576, 717], [600, 701], [732, 689], [780, 667]],
+  [[780, 667], [809, 654], [713, 651], [648, 629]],
+  [[648, 629], [660, 616], [781, 613], [823, 584]],
+  [[823, 584], [840, 572], [746, 568], [737, 549]],
+  [[737, 549], [720, 533], [793, 541], [827, 521]],
+  [[827, 521], [785, 515], [746, 504], [770, 493]],
+  [[770, 493], [822, 474], [853, 464], [877, 446]],
+  [[877, 446], [878, 438], [826, 435], [827, 426]],
+  [[827, 426], [840, 417], [881, 418], [895, 410]],
+  [[895, 410], [960, 366], [1000, 315], [1060, 260]],
+];
 
-/**
- * Sample point along the SVG path at progress t (0..1).
- * Approximated by evaluating the cubic Béziers in PATH_D piecewise.
- *
- * Returns {x, y} in 1920×1080 image-space coordinates.
- */
+export const PATH_D = `M ${PATH_CURVES[0][0].join(" ")} ${PATH_CURVES.map(([, a, b, c]) => `C ${a.join(" ")}, ${b.join(" ")}, ${c.join(" ")}`).join(" ")}`;
+
+/** Sample the same curves used to render the trail. */
 export function pathPointAt(t: number): { x: number; y: number; angle: number } {
   const clamped = Math.max(0, Math.min(1, t));
-
-  // 4 cubic Béziers, each takes 1/4 of progress
-  const segments: Array<[[number, number], [number, number], [number, number], [number, number]]> = [
-    [[360, 720], [480, 700], [560, 660], [640, 620]],
-    [[640, 620], [720, 580], [760, 600], [820, 560]],
-    [[820, 560], [880, 520], [940, 540], [980, 480]],
-    [[980, 480], [1020, 420], [1080, 420], [1080, 250]],
-  ];
+  const segments = PATH_CURVES;
 
   const segLen = 1 / segments.length;
   const segIdx = Math.min(segments.length - 1, Math.floor(clamped / segLen));

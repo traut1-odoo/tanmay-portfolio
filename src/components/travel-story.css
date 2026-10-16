@@ -1,0 +1,102 @@
+.travel-story {
+  position: relative;
+  overflow: clip;
+  padding: clamp(64px, 9vw, 128px) 0 72px;
+  scroll-margin-top: 80px;
+}
+
+.travel-story-heading {
+  max-width: 1328px;
+  margin: 0 auto 42px;
+  padding: 0 24px;
+}
+
+.travel-story-eyebrow {
+  margin-bottom: 18px;
+  color: var(--text-secondary);
+  font-family: var(--font-jetbrains-mono), monospace;
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+
+.travel-story-heading h2 {
+  font-size: clamp(60px, 10.5vw, 158px);
+  font-weight: 450;
+  letter-spacing: -.055em;
+  line-height: 1;
+}
+
+.travel-story-heading h2 span {
+  font-family: var(--font-serif), Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+}
+
+.travel-flight { margin: 0; }
+.travel-flight-window { position: relative; height: clamp(380px, 62svh, 740px); overflow: hidden; }
+.travel-flight-image { position: absolute; inset: -5% 0; }
+.travel-flight-photo { object-fit: cover; object-position: 50% 64%; }
+.travel-flight figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  max-width: 1328px;
+  margin: 16px auto 0;
+  padding: 0 24px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.travel-photographs {
+  display: grid;
+  grid-template-columns: 1.1fr .9fr;
+  align-items: start;
+  gap: clamp(32px, 8vw, 130px);
+  width: min(76%, 1020px);
+  margin: 48px auto 0;
+  padding-bottom: 28px;
+}
+
+.travel-photo { min-width: 0; margin: 0; }
+.travel-photo-aurora { padding-top: 36px; }
+.travel-portrait-window { position: relative; overflow: hidden; height: clamp(300px, 48svh, 550px); }
+.travel-photo-aurora .travel-portrait-window { height: clamp(270px, 41svh, 480px); }
+.travel-portrait-image { position: absolute; inset: 0; }
+.travel-tahoe-image { object-fit: cover; object-position: 50% 75%; }
+.travel-aurora-image { object-fit: cover; object-position: 50% 45%; }
+.travel-photo figcaption { margin-top: 12px; color: var(--text-secondary); font-size: 11px; line-height: 1.5; }
+
+.travel-story-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 36px;
+  margin: 28px 24px 0;
+}
+.travel-story-links a { display: inline-flex; align-items: center; gap: 10px; min-height: 44px; font-size: 13px; text-underline-offset: 5px; }
+.travel-story-links a:hover { text-decoration: underline; }
+.travel-story-links a:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; border-radius: 2px; }
+
+@media (max-width: 767px), (max-height: 599px) {
+  .travel-story { padding: 64px 0 48px; }
+  .travel-story-heading { padding-inline: 20px; margin-bottom: 28px; }
+  .travel-story-heading h2 { font-size: clamp(46px, 10.5vw, 82px); }
+  .travel-flight-window { height: auto; aspect-ratio: 4 / 3; }
+  .travel-flight-image { inset: 0; }
+  .travel-flight figcaption { padding-inline: 20px; font-size: 10px; }
+  .travel-photographs { width: auto; margin: 32px 20px 0; gap: 16px; padding: 0; }
+  .travel-portrait-window { height: auto; aspect-ratio: 3 / 4; }
+  .travel-photo-aurora .travel-portrait-window { height: auto; aspect-ratio: 3 / 4; }
+  .travel-photo-aurora { padding-top: 30px; }
+  .travel-photo figcaption { font-size: 10px; }
+  .travel-story-links { margin-top: 24px; gap: 2px 24px; }
+  .travel-story-links a { font-size: 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .travel-flight-window { clip-path: none !important; }
+  .travel-flight-image, .travel-portrait-image, .travel-photo { transform: none !important; }
+}

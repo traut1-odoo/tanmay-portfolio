@@ -42,8 +42,8 @@ export default function SkillsPage() {
                 What I Bring.
               </h1>
               <p className="text-text-secondary text-lg max-w-xl leading-relaxed">
-                A unique combination of manufacturing floor experience, end-to-end ERP ownership,
-                and AI-augmented delivery — all in one person.
+                I started in manufacturing and moved into business systems. These are the tools
+                and disciplines I use to connect the two.
               </p>
             </div>
           </div>

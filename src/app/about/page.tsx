@@ -8,7 +8,6 @@ import { SectionReveal, StaggerContainer, StaggerItem } from "@/components/secti
 import { SplitIdentity } from "@/components/split-identity";
 import { ArrowRight, Volume2, VolumeX } from "lucide-react";
 import { useNatureSounds } from "@/hooks/use-nature-sounds";
-import { LinkedinIcon, GithubIcon, InstagramIcon } from "@/components/social-icons";
 
 const NatureScene = dynamic(() => import("@/components/nature-scene").then(m => ({ default: m.NatureScene })), { ssr: false });
 
@@ -133,11 +132,11 @@ export default function About() {
                 About.
               </h1>
               <p className="text-xl text-gray-800 dark:text-white/90 leading-relaxed mb-4 backdrop-blur-sm bg-white/30 dark:bg-black/30 rounded-xl px-4 py-2 inline-block">
-                I&apos;m an ERP and business systems owner based in sunny Phoenix, Arizona.
+                I look after ERP and business systems at Heckler Design in Phoenix.
               </p>
               <p className="text-gray-700 dark:text-white/75 leading-relaxed max-w-lg backdrop-blur-sm bg-white/30 dark:bg-black/30 rounded-xl px-4 py-3">
-                Since 2020, I&apos;ve been designing how manufacturing businesses operate through their
-                systems — from the factory floor to the financial statements. When I&apos;m not in Odoo,
+                I started on the manufacturing floor. Now I connect that work to the systems
+                people use to plan, buy, ship and close the books. When I&apos;m not in Odoo,
                 you&apos;ll find me playing soccer, travelling, or reading about philosophy and markets.
               </p>
             </SectionReveal>
@@ -205,11 +204,11 @@ export default function About() {
             { emoji: "🏭", title: "Factory Floor Origins", text: "Managed 30+ welders & machinists before I ever touched an ERP", color: "from-orange-500/20 via-orange-600/5 to-transparent", span: "col-span-2" },
             { emoji: "🧠", title: "Systems Thinker", text: "Everything is a workflow. I think in processes, not tasks.", color: "from-cyan-500/20 via-cyan-600/5 to-transparent", span: "col-span-1" },
             { emoji: "⚽", title: "Soccer", text: "Weekend warrior on the pitch", color: "from-green-500/20 via-green-600/5 to-transparent", span: "col-span-1" },
-            { emoji: "🤖", title: "AI × Domain Knowledge", text: "AI is my dev team — I bring the manufacturing judgment no model has", color: "from-violet-500/20 via-violet-600/5 to-transparent", span: "col-span-1" },
+            { emoji: "🤖", title: "Making things work", text: "I like figuring out why a process is awkward, then finding a better way to do it", color: "from-violet-500/20 via-violet-600/5 to-transparent", span: "col-span-1" },
             { emoji: "📊", title: "The Books Stop Here", text: "Our accountants escalate to me when things don't balance", color: "from-emerald-500/20 via-emerald-600/5 to-transparent", span: "col-span-1" },
             { emoji: "🌍", title: "30 Places & Counting", text: "Monument Valley, Hawaii, Northern Lights, Iceland, UK, France, Singapore, Turkey...", color: "from-blue-500/20 via-blue-600/5 to-transparent", span: "col-span-2" },
             { emoji: "📈", title: "Market Watcher", text: "Following patterns, building financial literacy, studying the game", color: "from-amber-500/20 via-amber-600/5 to-transparent", span: "col-span-1" },
-            { emoji: "📖", title: "Philosophy & Mental Models", text: "How to think about thinking — systems within systems", color: "from-rose-500/20 via-rose-600/5 to-transparent", span: "col-span-1" },
+            { emoji: "📖", title: "Philosophy & Mental Models", text: "Books that make me question how I think and make decisions", color: "from-rose-500/20 via-rose-600/5 to-transparent", span: "col-span-1" },
             { emoji: "🎯", title: "The Vision", text: "Build systems so good that businesses run themselves", color: "from-cyan-500/20 via-purple-600/5 to-transparent", span: "col-span-2" },
             { emoji: "🇮🇳", title: "Mumbai → Phoenix", text: "Crossed continents for a Master's. Stayed for the opportunity.", color: "from-orange-500/10 via-white/0 to-green-500/10", span: "col-span-2" },
           ].map((card, i) => (
@@ -290,7 +289,7 @@ export default function About() {
           <div className="text-center">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">Want to work together?</h2>
             <p className="text-text-secondary mb-8 max-w-md mx-auto">
-              I&apos;m open to ERP leadership, business systems consulting, and AI-enabled process work.
+              If you’re working through an ERP change or a process that needs attention, let’s talk.
             </p>
             <Link href="/contact" className="group link-arrow px-8 py-4 bg-foreground text-background rounded-full text-sm font-medium hover:opacity-90 transition-opacity">
               Get In Touch <ArrowRight className="w-4 h-4" />

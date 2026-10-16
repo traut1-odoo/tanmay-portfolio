@@ -17,7 +17,7 @@ export const skillCategories: SkillCategory[] = [
     skills: [
       { name: "Odoo ERP (MRP, Inventory, Accounting, Sales, Purchase, Quality, CRM, Studio)", level: "Expert", percentage: 95 },
       { name: "Business Process Design & Workflow Mapping", level: "Expert", percentage: 95 },
-      { name: "SQL Reporting (AI-assisted authoring, GL-validated)", level: "Proficient", percentage: 65 },
+      { name: "SQL Reporting & Financial Validation", level: "Proficient", percentage: 65 },
       { name: "SAP S/4HANA", level: "Familiar", percentage: 40 },
       { name: "Excel (VBA, Power Query, PivotTables)", level: "Proficient", percentage: 75 },
     ]
@@ -26,10 +26,10 @@ export const skillCategories: SkillCategory[] = [
     name: "Automation & AI",
     icon: "bot",
     skills: [
-      { name: "AI-Assisted Development (Claude, ChatGPT, Gemini)", level: "Expert", percentage: 90 },
+      { name: "Prototyping with Claude, ChatGPT & Gemini", level: "Expert", percentage: 90 },
       { name: "MCP Protocol Integration", level: "Expert", percentage: 90 },
-      { name: "Odoo Studio Automations (AI-assisted)", level: "Expert", percentage: 85 },
-      { name: "Custom Module Design & AI-Directed Build", level: "Proficient", percentage: 75 },
+      { name: "Odoo Studio Workflow Design", level: "Expert", percentage: 85 },
+      { name: "Custom Module Design & Delivery", level: "Proficient", percentage: 75 },
     ]
   },
   {
@@ -50,6 +50,7 @@ export const skillCategories: SkillCategory[] = [
       { name: "Shopify Connector", level: "Proficient", percentage: 75 },
       { name: "ShipStation", level: "Proficient", percentage: 70 },
       { name: "Stripe Payment Gateway", level: "Proficient", percentage: 70 },
+      { name: "Stripe Tax: Custom Odoo Provider Module", level: "Proficient", percentage: 70 },
       { name: "Avalara/AvaTax", level: "Proficient", percentage: 65 },
       { name: "Slack & Ramp", level: "Proficient", percentage: 65 },
     ]

@@ -6,7 +6,7 @@ export function Footer() {
     <footer className="border-t border-border py-12 mt-auto">
       <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-4">
         <p className="text-sm text-text-secondary">
-          Built with Next.js, Three.js & Framer Motion
+          Tanmay Raut · Phoenix, Arizona
         </p>
         <div className="flex items-center gap-4">
           <a

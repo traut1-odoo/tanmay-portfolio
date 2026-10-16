@@ -1,12 +1,12 @@
 "use client";
 
 /**
- * Page transition wrapper — cross-fades + slight Y slide between routes.
+ * Page transition wrapper: opacity fades between routes.
  * Keyed by pathname so framer-motion AnimatePresence triggers exit/enter
- * on every route change. Reduced-motion respects user pref via CSS.
+ * on every route change. MotionConfig follows the visitor’s reduced-motion preference.
  */
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, type ReactNode } from "react";
 import { useSound } from "@/hooks/use-sound";
@@ -26,16 +26,18 @@ export function PageTransition({ children }: { children: ReactNode }) {
   }, [pathname, play]);
 
   return (
+    <MotionConfig reducedMotion="user">
     <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={pathname}
-        initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
-        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-        exit={{ opacity: 0, y: -8, filter: "blur(4px)" }}
-        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.25 }}
       >
         {children}
       </motion.div>
     </AnimatePresence>
+    </MotionConfig>
   );
 }

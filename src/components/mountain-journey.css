@@ -1,0 +1,48 @@
+.mountain-journey{position:relative;background:#152321;color:#fff9ec;scroll-margin-top:64px}
+.mountain-sticky{position:relative;display:flex;flex-direction:column;background:#152321;isolation:isolate}
+.mountain-canvas{position:relative;isolation:isolate;min-height:620px;overflow:hidden;flex:1;background:#233a3b}
+.mountain-viewport{position:absolute;inset:0;isolation:isolate;overflow:hidden}
+.mountain-world{position:absolute;inset:0;width:100%;height:100%;z-index:-2}
+.mountain-shade{position:absolute;inset:0;z-index:-1;pointer-events:none;background:linear-gradient(180deg,#081c2cb8,transparent 43%),linear-gradient(90deg,transparent 40%,#12222735 60%,#0b1b2cd9)}
+.mountain-heading{position:absolute;top:36px;left:max(30px,calc((100vw - 1280px)/2));color:#fff9ec;text-shadow:0 2px 16px #0d293a50}
+.mountain-heading>p{font:10px var(--font-jetbrains-mono),monospace;letter-spacing:.16em;text-transform:uppercase;color:#fff9ecd9}
+.mountain-heading h2{font-size:clamp(40px,5.4vw,78px);letter-spacing:-.055em;line-height:1.05;margin-top:12px;font-weight:500}
+.mountain-heading h2>span{font-weight:400;font-style:italic}
+.mountain-scroll-hint{display:flex;align-items:center;gap:9px;margin-top:16px;font-size:11px;color:#fff9ecd4}
+.mountain-clock{position:absolute;right:max(30px,calc((100vw - 1280px)/2));top:37px;display:flex;flex-direction:column;align-items:flex-end;color:#fff9ec;text-shadow:0 2px 16px #0d293a60}
+.mountain-clock>span{font:10px var(--font-jetbrains-mono),monospace;letter-spacing:.16em;text-transform:uppercase;opacity:.8}
+.mountain-clock>strong{font-size:clamp(38px,5vw,72px);letter-spacing:-.065em;line-height:1.1;margin-top:9px;font-weight:400;font-variant-numeric:tabular-nums}
+.mountain-milestone{position:absolute;right:max(35px,calc((100vw - 1280px)/2));bottom:52px;width:min(34%,420px);min-height:210px;color:#fff9ec;text-shadow:0 2px 18px #142c37a1}
+.mountain-stage-count{display:flex;align-items:center;gap:17px;font:10px var(--font-jetbrains-mono),monospace;letter-spacing:.1em;color:#fff9ecd4}
+.mountain-stage-count>span{border-left:1px solid #fff9ec66;padding-left:17px}
+.mountain-milestone h3{font-size:clamp(29px,3.2vw,46px);font-weight:450;line-height:1.09;letter-spacing:-.04em;margin-top:17px}
+.mountain-org{font-size:14px;line-height:1.5;margin-top:15px;color:#fff9ece6}
+.mountain-role{font-size:12px;line-height:1.5;margin-top:5px;color:#fff9ecc7}
+.mountain-milestone a{display:inline-flex;align-items:center;gap:12px;min-height:44px;margin-top:13px;font-size:11px;color:#fff9ecd9;text-decoration:underline;text-underline-offset:4px}
+.mountain-milestone a:hover{color:#fff}.mountain-milestone a:focus-visible{outline:2px solid #fff9ec;outline-offset:4px}
+.mountain-controls{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px max(24px,calc((100vw - 1280px)/2));background:#142420;border-top:1px solid #fff9ec14}
+.mountain-stages{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;flex:1}
+.mountain-stage{display:flex!important;align-items:flex-start!important;flex-direction:column;height:auto!important;min-height:56px!important;gap:5px!important;padding:8px 11px!important;background:transparent!important;border-radius:4px!important;text-align:left!important;color:#a9b9ae!important;font-size:11px!important;white-space:normal!important}
+.mountain-stage>span:first-child{font:10px var(--font-jetbrains-mono),monospace;letter-spacing:.06em;color:#879d90}
+.mountain-stage[aria-pressed=true]{background:#fff9ec0d!important;color:#fff9ec!important}.mountain-stage[aria-pressed=true]>span:first-child{color:#e7dba8}
+.mountain-stage:hover{background:#fff9ec08!important;color:#fff9ec!important}.mountain-stage:focus-visible{outline:2px solid #e7dba8;outline-offset:2px}
+.mountain-step-controls{display:flex;gap:5px}.mountain-step-controls button{width:38px;height:38px;color:#e7ecdf;background:transparent;border:1px solid #fff9ec25}.mountain-step-controls button:hover{background:#fff9ec14;color:white}
+.mountain-progress{position:absolute;bottom:0;left:0;right:0;height:2px;background:#fff9ec12;pointer-events:none}.mountain-progress>span{display:block;height:100%;background:#d7d8b1;transform-origin:left}
+@media(min-width:900px) and (min-height:700px) and (prefers-reduced-motion:no-preference){.mountain-journey{height:300svh}.mountain-sticky{position:sticky;top:64px;height:calc(100svh - 64px)}.mountain-canvas{min-height:0}.mountain-controls{order:-1;border-top:0;border-bottom:1px solid #fff9ec14}}
+@media(max-width:1100px){.mountain-heading{left:28px}.mountain-clock{right:28px}.mountain-milestone{right:28px;width:35%;bottom:35px;min-height:190px}.mountain-milestone h3{font-size:34px}.mountain-stage{font-size:10px!important;padding:8px!important}.mountain-stages{gap:3px}.mountain-controls{padding-inline:22px}.mountain-step-controls{display:none}}
+@media(max-width:899px),(max-height:699px){.mountain-canvas{display:grid;grid-template-rows:minmax(390px,60svh) auto;min-height:0;overflow:hidden}.mountain-viewport{position:relative;grid-row:1;inset:auto}.mountain-world{height:100%;bottom:0}.mountain-heading{top:27px;left:24px}.mountain-heading h2{font-size:48px}.mountain-clock{top:29px;right:24px}.mountain-clock strong{font-size:43px}.mountain-milestone{position:relative;right:auto;bottom:auto;grid-row:2;width:100%;min-height:205px;padding:25px 24px 24px;background:#122420;text-shadow:none}.mountain-milestone>div{max-width:620px}.mountain-milestone h3{font-size:32px;margin-top:13px;max-width:470px}.mountain-org{margin-top:10px;font-size:13px}.mountain-milestone a{margin-top:5px}.mountain-shade{background:linear-gradient(180deg,#081c2c88,transparent 40%,#12242055 70%)}.mountain-controls{padding:14px 18px}.mountain-stage{min-height:54px!important}.mountain-heading>p{font-size:9px}.mountain-clock>span{font-size:9px}}
+@media(max-width:599px){.mountain-canvas{grid-template-rows:minmax(340px,52svh) auto}.mountain-heading{top:24px;left:20px}.mountain-heading h2{font-size:39px;max-width:220px}.mountain-heading>p{font-size:8px;letter-spacing:.12em}.mountain-clock{top:24px;right:20px}.mountain-clock strong{font-size:34px}.mountain-clock>span{font-size:8px}.mountain-scroll-hint{font-size:10px;max-width:220px;margin-top:13px}.mountain-milestone{padding:22px 20px;min-height:204px}.mountain-milestone h3{font-size:30px;max-width:320px}.mountain-stages{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.mountain-controls{padding:10px 12px}.mountain-stage{font-size:11px!important;padding:8px!important;min-height:54px!important}.mountain-milestone a{font-size:12px}.mountain-stage-count{font-size:9px}}
+@media(prefers-reduced-motion:reduce){.mountain-journey{height:auto}.mountain-sticky{position:relative;height:auto}.mountain-canvas{min-height:650px}.mountain-milestone>div{transform:none!important}.mountain-stage,.mountain-step-controls button{transition:none!important}}
+@media(max-height:699px) and (min-width:900px){.mountain-canvas{grid-template-rows:360px auto}.mountain-milestone{min-height:190px}.mountain-milestone h3{max-width:none}}
+
+/* Keep the climb available in a narrow desktop review pane. */
+.mountain-controls{order:-1}
+@media(min-width:480px) and (max-width:899px) and (min-height:760px) and (prefers-reduced-motion:no-preference){
+  .mountain-journey{height:250svh}
+  .mountain-sticky{position:sticky;top:64px;height:calc(100svh - 64px)}
+  .mountain-canvas{min-height:0;grid-template-rows:minmax(0,1fr) auto}
+  .mountain-milestone{min-height:0;padding:18px 20px 70px}
+  .mountain-milestone h3{font-size:28px}
+  .mountain-controls{padding-block:6px;border-top:0;border-bottom:1px solid #fff9ec14}
+  .mountain-stage{min-height:45px!important}
+}

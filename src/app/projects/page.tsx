@@ -17,7 +17,7 @@ const featured = projects.filter((p) => p.featured);
 const archived = projects.filter((p) => !p.featured);
 
 const STATS = [
-  { label: "Projects shipped", value: projects.length },
+  { label: "Projects explored", value: projects.length },
   { label: "Featured deep-dives", value: featured.length },
   { label: "Years active", value: 8 }, // 2018 → 2026
   { label: "Categories", value: 7 },
@@ -81,9 +81,8 @@ export default function ProjectsPage() {
             transition={{ duration: 0.8, delay: 0.25, ease: [0.16, 1, 0.3, 1] }}
             className="mt-8 md:mt-10 serif-prose text-lg md:text-xl text-text-secondary max-w-3xl leading-[1.7]"
           >
-            Every shipped system started as a constraint, a sketch, and a sequence of decisions.
-            These deep dives walk through the planning — what the problem actually was, what got
-            traded off, and how the build went. The rest of the work lives in the archive.
+            Here’s what needed fixing, what I was responsible for and how we approached it.
+            Open a case study for the decisions and tradeoffs, or browse the archive for more projects.
           </motion.p>
 
           {/* Stats strip */}
@@ -140,8 +139,8 @@ export default function ProjectsPage() {
                   {archived.length} more in the archive.
                 </h3>
                 <p className="serif-prose text-base text-text-secondary mt-4 max-w-xl leading-[1.7]">
-                  Cost accounting builds, Stripe integration, dashboards, RMA workflows,
-                  the Odoo 16 → 17 cutover, the academic foundations. Compact list, year-grouped.
+                  Business systems, trading research, community-care prototypes and academic
+                  projects. Browse the work by year, with context on what each project does.
                 </p>
               </div>
               <motion.div

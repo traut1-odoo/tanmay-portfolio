@@ -1,242 +1,158 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, User } from "lucide-react";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
+import { X, Send, User, MessageSquare, Bot } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { useChat } from "@/hooks/use-chat";
-import { SplineCharacter } from "./spline-character";
+import { Button } from "@/components/ui/button";
 import { INPUT_PLACEHOLDER, SUGGESTED_PROMPTS } from "@/data/chatbot-context";
 
 export function AIChatbot() {
   const [isOpen, setIsOpen] = useState(false);
-  const [hovering, setHovering] = useState(false);
   const [input, setInput] = useState("");
   const { messages, isLoading, sendMessage } = useChat();
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = useReducedMotion();
+  const messagesRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  // set while/just-after a drag so the release tap doesn't open the chat
-  const wasDragging = useRef(false);
-
-  // Pikachu plays its reaction animation while the bot is typing or on hover
-  const charState = isLoading || hovering ? "talking" : "idle";
+  const launcherRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    const container = messagesRef.current;
+    if (!container) return;
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: reducedMotion ? "instant" : "smooth",
+    });
+  }, [messages, isLoading, isOpen, reducedMotion]);
 
   useEffect(() => {
     if (isOpen) inputRef.current?.focus();
   }, [isOpen]);
 
+  const closeChat = () => {
+    setIsOpen(false);
+    launcherRef.current?.focus();
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
     sendMessage(input);
     setInput("");
   };
 
   return (
-    <motion.div
-      className="fixed bottom-4 left-3 md:bottom-5 md:left-5 z-50"
-      style={{ pointerEvents: "auto" }}
-      drag={!isOpen}
-      dragMomentum={false}
-      dragElastic={0}
-      whileDrag={{ scale: 1.05, cursor: "grabbing" }}
-      onDragStart={() => {
-        wasDragging.current = true;
-      }}
-      onDragEnd={() => {
-        // keep the flag set briefly so the release tap is swallowed
-        setTimeout(() => {
-          wasDragging.current = false;
-        }, 120);
-      }}
-      onTap={() => {
-        // a drag just happened → don't open; only a clean tap opens
-        if (wasDragging.current) return;
-        if (!isOpen) setIsOpen(true);
-      }}
-    >
+    <div className="fixed bottom-4 left-3 z-50 md:bottom-5 md:left-5">
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="absolute bottom-14 left-0 w-[calc(100vw-1.5rem)] max-w-80 sm:max-w-96 bg-background border border-border rounded-2xl shadow-2xl overflow-hidden backdrop-blur-xl"
-            style={{ backgroundColor: "var(--background)" }}
+            id="portfolio-assistant"
+            role="dialog"
+            aria-labelledby="portfolio-assistant-title"
+            onKeyDown={(event) => {
+              if (event.key === "Escape") {
+                event.stopPropagation();
+                closeChat();
+              }
+            }}
+            initial={{ opacity: 0, y: reducedMotion ? 0 : 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: reducedMotion ? 0 : 6 }}
+            transition={{ duration: reducedMotion ? 0 : 0.18 }}
+            className="absolute bottom-14 left-0 flex max-h-[calc(100svh-7rem)] w-[calc(100vw-1.5rem)] max-w-96 flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-2xl"
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-border" style={{ backgroundColor: "var(--background)" }}>
-              <div className="flex items-center gap-2">
-                <SplineCharacter state={isLoading ? "talking" : "idle"} size={52} compact />
+            <div className="flex shrink-0 items-center justify-between border-b border-border px-4 py-3">
+              <div className="flex items-center gap-3">
+                <MessageSquare className="size-4 text-text-secondary" aria-hidden="true" />
                 <div>
-                  <div className="text-sm font-semibold text-foreground">Ask Pikachu about Tanmay</div>
-                  <div className="text-[10px] text-text-secondary">
-                    {isLoading ? "typing…" : "AI-powered assistant"}
-                  </div>
+                  <div id="portfolio-assistant-title" className="text-sm font-semibold text-foreground">Ask about Tanmay</div>
+                  <div className="mt-0.5 text-xs text-text-secondary">AI assistant for my work and projects</div>
                 </div>
               </div>
-              <button
-                onClick={() => setIsOpen(false)}
-                className="w-7 h-7 rounded-full hover:bg-surface-hover flex items-center justify-center transition-colors"
-              >
-                <X className="w-4 h-4 text-text-secondary" />
-              </button>
+              <Button variant="ghost" size="icon" onClick={closeChat} aria-label="Close assistant">
+                <X aria-hidden="true" />
+              </Button>
             </div>
 
-            {/* Messages */}
-            <div className="h-72 overflow-y-auto p-4 space-y-3">
+            <div ref={messagesRef} className="h-72 min-h-0 space-y-3 overflow-y-auto overscroll-contain p-4" role="log" aria-label="Conversation" aria-live="polite" aria-relevant="additions text">
               {messages.length === 0 && (
-                <div className="text-center py-6">
-                  <div className="flex justify-center mb-3">
-                    <SplineCharacter state="idle" size={130} />
-                  </div>
-                  <p className="text-sm text-text-secondary">
-                    Ask about Tanmay&apos;s projects, stack, philosophy, or the Odoo 17 cutover.
+                <div className="py-3">
+                  <p className="text-sm leading-relaxed text-text-secondary">
+                    Curious about a project or how I work? Start here.
                   </p>
-                  <div className="mt-3 flex flex-wrap gap-1.5 justify-center">
-                    {SUGGESTED_PROMPTS.map((q) => (
-                      <button
-                        key={q}
-                        onClick={() => { setInput(""); sendMessage(q); }}
-                        className="text-xs px-2.5 py-1 rounded-full bg-accent/10 text-accent hover:bg-accent/20 transition-colors"
+                  <div className="mt-4 flex flex-col items-start gap-2">
+                    {SUGGESTED_PROMPTS.map((question) => (
+                      <Button
+                        key={question}
+                        variant="outline"
+                        disabled={isLoading}
+                        onClick={() => { setInput(""); sendMessage(question); }}
+                        className="h-auto whitespace-normal px-3 py-2 text-left text-xs leading-relaxed"
                       >
-                        {q}
-                      </button>
+                        {question}
+                      </Button>
                     ))}
                   </div>
                 </div>
               )}
 
-              {messages.map((msg, i) => (
-                <div key={i} className={`flex gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                  {msg.role === "assistant" && (
-                    <div className="shrink-0 mt-0.5">
-                      <SplineCharacter state="idle" size={24} compact />
-                    </div>
+              {messages.map((message, index) => (
+                <div key={index} className={`flex gap-2 ${message.role === "user" ? "justify-end" : "justify-start"}`}>
+                  {message.role === "assistant" && (
+                    <Bot className="mt-2 size-4 shrink-0 text-text-secondary" aria-hidden="true" />
                   )}
-                  <div
-                    className={`max-w-[80%] px-3 py-2 rounded-xl text-sm border ${
-                      msg.role === "user"
-                        ? "bg-accent text-black rounded-br-sm border-transparent"
-                        : "text-foreground rounded-bl-sm border-border"
-                    }`}
-                    style={
-                      msg.role === "assistant"
-                        ? { backgroundColor: "var(--surface-hover)", backdropFilter: "blur(8px)" }
-                        : undefined
-                    }
-                  >
-                    {msg.role === "user" ? (
-                      msg.content
-                    ) : (
+                  <div className={`max-w-[85%] rounded-xl border px-3 py-2 text-sm ${message.role === "user" ? "rounded-br-sm border-transparent bg-foreground text-background" : "rounded-bl-sm border-border bg-surface-hover text-foreground"}`}>
+                    {message.role === "user" ? message.content : (
                       <ReactMarkdown
                         components={{
                           p: ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
-                          strong: ({ children }) => <strong className="font-semibold text-accent">{children}</strong>,
-                          ul: ({ children }) => <ul className="list-disc list-inside space-y-0.5 my-1">{children}</ul>,
+                          strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+                          ul: ({ children }) => <ul className="my-1 list-inside list-disc space-y-0.5">{children}</ul>,
                           li: ({ children }) => <li className="text-sm">{children}</li>,
-                          code: ({ children }) => <code className="bg-black/20 px-1 rounded text-xs font-mono">{children}</code>,
+                          code: ({ children }) => <code className="rounded bg-foreground/10 px-1 font-mono text-xs">{children}</code>,
                         }}
                       >
-                        {msg.content}
+                        {message.content}
                       </ReactMarkdown>
                     )}
                   </div>
-                  {msg.role === "user" && (
-                    <div className="w-6 h-6 rounded-full bg-foreground/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <User className="w-3 h-3 text-foreground" />
-                    </div>
-                  )}
+                  {message.role === "user" && <User className="mt-2 size-4 shrink-0 text-text-secondary" aria-hidden="true" />}
                 </div>
               ))}
 
-              {isLoading && (
-                <div className="flex gap-2 justify-start">
-                  <div className="shrink-0 mt-0.5">
-                    <SplineCharacter state="talking" size={24} compact />
-                  </div>
-                  <div className="px-3 py-2 rounded-xl rounded-bl-sm border border-border" style={{ backgroundColor: "var(--surface-hover)" }}>
-                    <motion.div className="flex gap-1">
-                      {[0, 1, 2].map((i) => (
-                        <motion.div
-                          key={i}
-                          className="w-1.5 h-1.5 rounded-full bg-text-secondary"
-                          animate={{ opacity: [0.3, 1, 0.3] }}
-                          transition={{ repeat: Infinity, duration: 1, delay: i * 0.2 }}
-                        />
-                      ))}
-                    </motion.div>
-                  </div>
-                </div>
-              )}
-
-              <div ref={messagesEndRef} />
+              {isLoading && <p role="status" className="pl-6 text-xs text-text-secondary">Writing a reply…</p>}
             </div>
 
-            {/* Input */}
-            <form onSubmit={handleSubmit} className="p-3 border-t border-border flex gap-2">
+            <form onSubmit={handleSubmit} className="flex shrink-0 gap-2 border-t border-border p-3">
               <input
                 ref={inputRef}
                 type="text"
                 value={input}
-                onChange={(e) => setInput(e.target.value)}
+                onChange={(event) => setInput(event.target.value)}
                 placeholder={INPUT_PLACEHOLDER}
-                className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:border-accent transition-colors placeholder:text-text-secondary/50"
+                aria-label="Your question about Tanmay"
+                className="min-w-0 flex-1 rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-text-secondary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
               />
-              <button
-                type="submit"
-                disabled={isLoading || !input.trim()}
-                className="w-9 h-9 flex items-center justify-center rounded-lg bg-accent text-black hover:bg-accent-hover transition-colors disabled:opacity-40"
-              >
-                <Send className="w-4 h-4" />
-              </button>
+              <Button type="submit" size="icon" disabled={isLoading || !input.trim()} className="size-10" aria-label="Send question">
+                <Send aria-hidden="true" />
+              </Button>
             </form>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Toggle button — character avatar (drag the whole widget to reposition) */}
-      <button
-        onClick={() => {
-          // when open, drag is disabled so this click fires normally → close.
-          // when closed, framer's drag suppresses this; container onTap opens.
-          if (isOpen) setIsOpen(false);
-        }}
-        onMouseEnter={() => setHovering(true)}
-        onMouseLeave={() => setHovering(false)}
-        className="relative focus:outline-none transition-transform hover:scale-105 active:scale-95"
-        aria-label={isOpen ? "Close chat" : "Chat with Tanmay's AI"}
+      <Button
+        ref={launcherRef}
+        variant="outline"
+        onClick={() => { if (isOpen) closeChat(); else setIsOpen(true); }}
+        aria-expanded={isOpen}
+        aria-controls={isOpen ? "portfolio-assistant" : undefined}
+        className="h-10 gap-2 rounded-full bg-background/95 px-3.5 text-xs text-foreground shadow-sm backdrop-blur-md sm:h-11 sm:px-4 sm:text-sm dark:bg-background/95"
       >
-        <AnimatePresence mode="wait">
-          {isOpen ? (
-            <motion.div
-              key="close"
-              initial={{ scale: 0.7, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.7, opacity: 0 }}
-              transition={{ duration: 0.18 }}
-              className="w-12 h-12 rounded-full bg-accent flex items-center justify-center shadow-xl shadow-black/30"
-            >
-              <X className="w-5 h-5 text-black" />
-            </motion.div>
-          ) : (
-            <motion.div
-              key="character"
-              initial={{ scale: 0.7, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.7, opacity: 0 }}
-              transition={{ duration: 0.18 }}
-            >
-              <SplineCharacter state={charState} size={72} />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </button>
-    </motion.div>
+        {isOpen ? <X aria-hidden="true" /> : <MessageSquare aria-hidden="true" />}
+        {isOpen ? "Close assistant" : "Ask about my work"}
+      </Button>
+    </div>
   );
 }

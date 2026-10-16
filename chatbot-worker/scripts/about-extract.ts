@@ -6,7 +6,7 @@
  * changes materially, then re-run `npm run build:context`.
  */
 
-export const ABOUT_HERO = `Tanmay Raut is an ERP and business systems owner based in Phoenix, Arizona. Since 2020 he has been designing how manufacturing businesses operate through their systems — from the factory floor to the financial statements. He does not hand-write code: he maps the process, designs the solution, and directs AI development tools (Claude) and developers to build it, then tests, deploys, and owns the result. Outside of work he plays soccer, travels, and reads philosophy and markets.`;
+export const ABOUT_HERO = `Tanmay Raut looks after ERP and business systems at Heckler Design in Phoenix. He started on the manufacturing floor and now connects that work to the systems people use to plan, buy, ship and close the books. He maps processes, designs solutions, directs developers and AI tools, tests the result and owns the rollout. Outside work he plays soccer, travels, and reads philosophy and markets.`;
 
 export interface IdentityCard {
   title: string;
@@ -31,8 +31,8 @@ export const IDENTITY_CARDS: IdentityCard[] = [
     body: "Weekend warrior on the pitch. Plays in a weekend league.",
   },
   {
-    title: "AI × Domain Knowledge",
-    body: "AI is his dev team. He brings the manufacturing judgment no model has.",
+    title: "Making things work",
+    body: "He likes figuring out why a process is awkward, then finding a better way to do it.",
   },
   {
     title: "The Books Stop Here",
@@ -48,7 +48,7 @@ export const IDENTITY_CARDS: IdentityCard[] = [
   },
   {
     title: "Philosophy & Mental Models",
-    body: "Interested in how to think about thinking — systems within systems.",
+    body: "Reads books that make him question how he thinks and makes decisions.",
   },
   {
     title: "The Vision",

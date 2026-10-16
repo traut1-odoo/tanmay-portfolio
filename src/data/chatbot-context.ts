@@ -8,11 +8,11 @@
  */
 
 export const INPUT_PLACEHOLDER =
-  "Ask about Tanmay's projects, how he builds, or the Odoo 17 cutover…";
+  "Ask about a project, my role, or the Odoo upgrade…";
 
 export const SUGGESTED_PROMPTS = [
   "Tell me about the Odoo 16 → 17 cutover",
   "What's the AEI vendor portal?",
-  "How does Tanmay ship systems without writing code?",
+  "What was Tanmay responsible for on these projects?",
   "What was the QC + Vendor RMA module?",
 ] as const;

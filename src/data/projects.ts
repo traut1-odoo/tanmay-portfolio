@@ -56,7 +56,7 @@ export const projects: Project[] = [
     tech: ["Next.js 16", "TypeScript", "Tailwind CSS", "shadcn/ui", "Odoo 19", "XML-RPC", "TanStack Query"],
     featured: true,
     problem: "Heckler Design managed their entire AEI vendor relationship through a single 8,441-row spreadsheet with 50+ columns tracking SKU mappings, multi-year pricing, kanban quantities, PO history, delivery status, production holds, and returns.",
-    role: "Designed the entire system architecture and built it using AI-assisted development. Created dual interfaces: an admin dashboard for Heckler staff and a collaborative portal for AEI with restricted access.",
+    role: "Mapped the vendor workflow, designed the architecture and directed the build. Defined separate interfaces and access rules for Heckler staff and AEI.",
     solution: "Built a Next.js application with Odoo 19 as the sole data store via XML-RPC. Admin gets full CRUD across 8 modules (dashboard, products, orders, pricing, deliveries, returns, holds, analytics). Vendor portal provides read-only access with limited update capabilities. Live data: 398 products, 3,292+ POs, 3,583 pickings.",
     impact: ["Eliminated spreadsheet dependency for vendor management", "Real-time PO and delivery tracking", "Multi-step return wizard with automated workflows", "Inline SKU editing with access control"],
     date: "2026",
@@ -331,7 +331,7 @@ export async function searchRead(
     tech: ["Python", "MCP Protocol", "XML-RPC", "Cloudflare Tunnel", "Claude AI"],
     featured: true,
     problem: "Operational data lived inside Odoo, accessible only through the web interface. Getting answers to business questions required manual navigation, exports, and analysis.",
-    role: "Specified the tool set and directed the AI-assisted build of the MCP server, configured the Cloudflare Tunnel, and rolled it out as the primary interface for real-time ERP querying.",
+    role: "Defined the tools and business questions, directed the MCP server build, configured Cloudflare Tunnel and rolled it out to the team.",
     solution: "Created an MCP server that connects Claude AI directly to Odoo via XML-RPC. Supports search, read, create, update, aggregate, and model introspection across all Odoo models.",
     impact: ["Real-time manufacturing analytics from natural language queries", "BOM cost analysis without manual exports", "Deployed org-wide via Cowork as primary interface", "Reduced time-to-answer from hours to seconds"],
     date: "2025–2026",
@@ -472,6 +472,178 @@ async def aggregate_records(
     ],
   },
 
+  // ═══ CONNECTED SYSTEMS & PERSONAL PROJECTS ═══
+  {
+    slug: "heckler-headless",
+    title: "The business behind the storefront",
+    category: "Integrations",
+    description: "My work on Heckler's shared business platform connects dealer ordering, manufacturing, purchasing, returns and reporting. Contributions are merged into the codebase, with rollout managed by feature.",
+    tech: ["Next.js", "TypeScript", "Odoo", "Shopify", "Clerk"],
+    featured: false,
+    problem: "An order touches far more than a checkout. Dealers need quotes and documents, planners need parts and capacity, and staff need a clear way to handle changes and returns.",
+    role: "Translated operational needs into workflows and contributed to their design, implementation and refinement within a shared team codebase, using AI coding tools throughout the build.",
+    solution: "Connected dealer quotes, manufacturing queues, material-aware delivery estimates, purchasing actions, business reporting and return approvals to the underlying operational records.",
+    impact: ["Dealer workspace brings quotes, documents and order conversations together", "Planning views connect shipment risk, build priorities, people and stations", "Lead-time calculations account for components, production work and order quantity", "Returns move through review and approval before creating an ERP return"],
+    date: "2026",
+    caseStudy: [
+      {
+        type: "narrative",
+        title: "The order is only the beginning",
+        body: "A dealer asking for a delivery date needs an answer that survives contact with the factory. Is the stock available? Are the components available? What work is already in the queue? My work on Heckler Headless connects those questions to the people and records that can answer them.",
+      },
+      {
+        type: "narrative",
+        title: "My part",
+        body: "I contributed across dealer ordering, production planning, purchasing, returns and reporting. That meant translating business rules into screens and actions, working through exceptions, and refining the implementation with AI coding tools. This is a shared platform; this case study covers my contributions within it.",
+      },
+      {
+        type: "narrative",
+        title: "A dealer's next step should be clear",
+        body: "The dealer workspace brings quote building, order conversations, documents, purchase-order uploads and available invoice payment links into one journey. On the staff side, a return request can be reviewed and discussed before approval creates the corresponding ERP record. A rejected request stays in the review history without creating an unnecessary return.",
+      },
+      {
+        type: "narrative",
+        title: "Planning around the constraints",
+        body: "Manufacturing views show what can ship, what needs to be built, where capacity is tight and how work reaches each station. Lead-time calculations consider stock, component supply, nested bills of materials and order size. Purchasing workflows turn shortages into reviewed release requests or draft requests for quotation, with checks against duplicate actions.",
+      },
+      {
+        type: "narrative",
+        title: "Follow the number back to the work",
+        body: "Sales and margin reporting supports period comparison, filtering and drill-down. Related work extends into receivables, manufacturing and shipping. The partner workspace brings order acknowledgment, delivery promises, shipment progress and messages alongside the same operational records.",
+      },
+      {
+        type: "narrative",
+        title: "Project scope",
+        body: "The contributions described here are merged into Heckler's shared codebase. Some actions have separate permissions or rollout gates, so a merged feature does not mean every user can use it. Portfolio illustrations use fictional records and show the workflow rather than a live company account.",
+      },
+    ],
+  },
+  {
+    slug: "odoo-operations",
+    title: "Every handoff needs a next step",
+    category: "Operations",
+    description: "Company work across customer returns, tax, timekeeping and manufacturing capacity in Odoo 19. These contributions are part of Heckler's production branch.",
+    tech: ["Odoo 19", "Python", "OWL", "PostgreSQL", "Stripe Tax"],
+    featured: false,
+    problem: "Operational work keeps moving after someone changes a status. A partial return still needs another receipt, a corrected time punch needs consistent totals, and a purchasing edit must preserve the agreed price.",
+    role: "Defined operational rules and contributed their implementation and follow-up fixes with AI coding tools, connecting warehouse, manufacturing, accounting and staff workflows.",
+    solution: "Extended Odoo workflows for receiving and inspecting customer returns, accounting handoffs, external tax calculation, attendance corrections, payroll exports and capacity planning.",
+    impact: ["Customer returns carry inspection decisions through to inventory and accounting", "Attendance corrections propagate into activity records and reports", "Capacity dashboards calculate workload and shortages from manufacturing records", "Confirmed purchase orders preserve agreed prices when quantity changes"],
+    date: "2026",
+    caseStudy: [
+      {
+        type: "narrative",
+        title: "The work between departments",
+        body: "The interesting ERP problems often sit between teams. A warehouse receipt changes what accounting can credit. A corrected clock-in changes the time assigned to an activity. I work on the rules that keep those handoffs understandable, including what should happen when only part of a job is complete.",
+      },
+      {
+        type: "narrative",
+        title: "My part",
+        body: "I defined business behavior and contributed implementation and iterative fixes across Heckler's Odoo modules, using AI coding tools. The work covers both larger workflows and small rules with practical consequences, such as preserving an agreed price when a buyer changes a confirmed order's quantity.",
+      },
+      {
+        type: "narrative",
+        title: "Receive, inspect, resolve",
+        body: "The customer-return workflow handles partial arrivals, inspection, restock or scrap, and the accounting handoff. Damage evidence stays with the resulting scrap record. Accounting gets a task when a credit can be produced, and repeated arrival events avoid duplicate pending tasks. This customer-return work is separate from the vendor-quality return system elsewhere in the portfolio.",
+      },
+      {
+        type: "narrative",
+        title: "Keep the records consistent",
+        body: "Attendance work includes activity time, break handling, day corrections, time-card reports and payroll CSV export. When punches change, related activity durations need to reconcile. Separate Stripe Tax work follows an order through invoices and refunds, including exemption decisions and freight treatment.",
+      },
+      {
+        type: "narrative",
+        title: "Show the actual queue",
+        body: "The 3D-print capacity dashboard calculates printer-hours, operator touch time, component shortages and downstream demand from manufacturing records. A separate cardboard-cutting dashboard turns open work into machine minutes and queue-clear time. These views help explain what is waiting and which constraint needs attention.",
+      },
+      {
+        type: "narrative",
+        title: "Project scope",
+        body: "These changes are present in Heckler's production branch. This case study describes the implemented behavior, without treating source history as proof of every module's current deployment. Portfolio illustrations use fictional records; customer, employee and financial records remain private.",
+      },
+    ],
+  },
+  {
+    slug: "trading-research-desk",
+    title: "A research desk for my market curiosity",
+    category: "Data & Dashboards",
+    description: "A personal trading research toolkit with a React dashboard, market screening, scored research notes, historical simulations and risk checks. An experiment in making research easier to inspect.",
+    tech: ["Python", "FastAPI", "React", "Market Data", "Historical Simulation"],
+    featured: false,
+    problem: "Market research combines signals that can disagree, arrive late or describe different things. I wanted to see the reasoning behind a conclusion and understand when the data was too weak to trust.",
+    role: "Built and iterated a personal research workflow with AI coding tools, choosing how evidence is combined, how simulations are bounded and which failures need to be visible.",
+    solution: "Connected a research dashboard and command-line tools to market snapshots, screening, news, explicit scoring, portfolio-risk checks and historical simulation. Added data-health and failure checks alongside the analysis.",
+    impact: ["Research notes expose the signals behind a score", "Historical simulations account for sizing, slippage and exit rules", "Risk checks inspect concentration and position sizing", "Health checks flag stale data and background-job problems"],
+    date: "2026",
+    caseStudy: [
+      {
+        type: "narrative",
+        title: "Built for a question I kept asking",
+        body: "Why does this idea look interesting, and what would change my mind? I built this personal research desk to keep the evidence visible. The dashboard brings research, screening, news, performance and rules into one place, while Python tools handle the analysis behind those views.",
+      },
+      {
+        type: "narrative",
+        title: "My part",
+        body: "I shaped the research workflow and iterated on the implementation with AI coding tools. Much of the work is about judgment around the output: which inputs deserve weight, how to show conflicting evidence, and what to do when a source is late or a price is inconsistent.",
+      },
+      {
+        type: "narrative",
+        title: "Show the ingredients",
+        body: "Research notes bring together technical signals, momentum, fundamentals, news quality, community sentiment and insider context. The scoring makes those contributions explicit. Squeeze context is kept separate from the score, so interesting context does not silently become another reason to act.",
+      },
+      {
+        type: "narrative",
+        title: "A simulation needs boundaries",
+        body: "The historical simulator supports position-sizing methods, slippage, stops, targets, timeouts and benchmark comparisons. It uses the technical signals that can be reconstructed from historical data, rather than pretending to replay every current research input. Separate risk checks look at concentration, beta and positions near their stops.",
+      },
+      {
+        type: "narrative",
+        title: "Make bad data visible",
+        body: "I added checks for stale data, background jobs and logging, and worked on inconsistent price inputs and the order in which slow research calls run. This remains a personal research project. The portfolio uses fictional scenarios and makes no claim about investment returns or live brokerage execution.",
+      },
+    ],
+  },
+  {
+    slug: "neighbourhelper",
+    title: "Help nearby. Reassurance from afar.",
+    category: "Operations",
+    description: "NeighbourHelper is a mobile prototype exploring how families, older adults and local volunteers could coordinate everyday help. Built with mock data and local state, without a backend.",
+    tech: ["Expo", "React Native", "TypeScript", "Local State"],
+    featured: false,
+    problem: "When family lives far away, a small everyday task can be difficult to arrange. The person asking, the person helping and the relative checking in each need a different view of the same request.",
+    role: "Developed the concept and role-based prototype with AI coding tools, exploring how a care request could move between family, volunteer and older-adult screens.",
+    solution: "Created separate app journeys for family, volunteers, older adults and administrators. Local task state supports requests, applications, progress and completion, with simulated points and hours.",
+    impact: ["Prototype makes each participant's view of a request tangible", "Local task flow connects a family request to volunteer progress", "Larger controls explore a simpler experience for older adults", "Mock data allows exploration without involving real care recipients"],
+    date: "2026",
+    caseStudy: [
+      {
+        type: "narrative",
+        title: "A small task can mean a lot",
+        body: "NeighbourHelper explores a straightforward idea: someone nearby could help with an everyday task while a family member farther away stays informed. The prototype is built around that shared request, with different screens for the person asking, the person helping and the person receiving help.",
+      },
+      {
+        type: "narrative",
+        title: "My part",
+        body: "I developed the concept and shaped the app's roles and task flow with AI coding tools. I used a mock-data prototype to make the experience concrete before adding the operational responsibilities of a real service.",
+      },
+      {
+        type: "narrative",
+        title: "One request, several perspectives",
+        body: "A family member can create a request. A volunteer can browse tasks, apply, track time and mark work complete in local state. The older-adult journey uses larger controls and a simpler view. Separate admin screens explore oversight of the same community model.",
+      },
+      {
+        type: "narrative",
+        title: "Explore the idea before promising a service",
+        body: "Points, hours, badges and a timebank model explore recognition for helping. They are simulated values. The current app uses predefined role accounts and has no backend or real authentication. Photo and emergency controls are placeholders, and timebank transfers are not implemented.",
+      },
+      {
+        type: "narrative",
+        title: "Where it stands",
+        body: "This is an early mobile prototype, not an operating care service. It gives me something specific to examine: whether each person understands what happens next, and whether family updates can be reassuring without overwhelming the person receiving help.",
+      },
+    ],
+  },
+
   // ═══ PROFESSIONAL ═══
   {
     slug: "csku-cut-parts",
@@ -526,6 +698,57 @@ async def aggregate_records(
     date: "2024"
   },
   {
+    slug: "stripe-tax-odoo",
+    title: "Stripe Tax for Odoo 19",
+    category: "Finance",
+    description: "A custom Odoo external-tax provider module I built to connect Stripe Tax with orders, invoices and refunds. It handles exemption decisions, freight, recalculation and the tax transaction lifecycle.",
+    tech: ["Odoo 19", "Python", "Stripe Tax API", "Odoo Accounting"],
+    featured: false,
+    problem: "Tax needs to stay consistent as an order changes, becomes an invoice or is partially refunded. Exempt orders, freight and credit notes each introduce rules that a payment gateway alone does not handle.",
+    role: "Built the Stripe Tax provider module for Odoo 19 and defined its business behavior, using AI coding tools for implementation and iterative fixes across orders, invoices and refunds.",
+    solution: "Created the external-tax provider and Stripe client, connected tax calculation and recalculation to sales and accounting documents, and added transaction posting and refund behavior. Refined exemption inheritance and freight handling, including freight-only invoices.",
+    impact: ["Stripe Tax calculation integrated into Odoo sales and accounting documents", "Credit notes inherit exemption decisions from their linked orders", "Goods and freight follow the relevant tax treatment, including freight-only invoices", "Tax transactions and refunds follow the invoice lifecycle"],
+    date: "2026",
+    caseStudy: [
+      {
+        type: "narrative",
+        title: "Tax has a lifecycle",
+        body: "An order is not always the final version of the transaction. Quantities change, freight can be invoiced separately, and a return can create a credit note. I built a Stripe Tax provider module inside Odoo 19 to carry tax behavior through those changes.",
+      },
+      {
+        type: "narrative",
+        title: "My part",
+        body: "I built the custom external-tax module and defined how it should behave across sales orders, invoices and refunds. That work included the Stripe client, Odoo document integration and the follow-up fixes needed for real accounting cases. I used AI coding tools throughout implementation and refinement.",
+      },
+      {
+        type: "mermaid",
+        title: "Follow the transaction",
+        mermaid: `flowchart LR
+    Order["Sales order"] --> Calculate["Calculate or recalculate tax"]
+    Calculate --> Invoice["Invoice"]
+    Invoice --> Post["Post tax transaction"]
+    Invoice --> Credit["Credit note"]
+    Credit --> Refund["Tax refund"]`,
+        caption: "A simplified view of the module's document lifecycle. Exemption and freight decisions apply within the relevant document steps.",
+      },
+      {
+        type: "narrative",
+        title: "The exceptions matter",
+        body: "An exempt sale needs consistent treatment when it is credited. Freight needs its own handling, including an invoice containing only freight. Those cases shaped the module beyond the initial calculation call, alongside recalculation, posted tax transactions and refunds.",
+      },
+      {
+        type: "narrative",
+        title: "Separate from payment collection",
+        body: "This is the 2026 tax-provider work, separate from my earlier Stripe payment integration for paying invoices through the portal. The payment integration concerns collecting money; this module connects tax calculation and transaction records to Odoo's sales and accounting documents.",
+      },
+      {
+        type: "narrative",
+        title: "Project scope",
+        body: "The module and the refinements described here are present in Heckler's production branch. This portfolio describes implemented behavior and does not expose customer transactions, tax records or company financial data.",
+      },
+    ],
+  },
+  {
     slug: "stripe-integration",
     title: "Stripe Payment Integration",
     category: "Integrations",
@@ -546,7 +769,7 @@ async def aggregate_records(
     tech: ["Dashboard Ninja", "PostgreSQL", "Custom SQL", "Odoo 17"],
     featured: false,
     problem: "Leadership had no real-time visibility into manufacturing operations.",
-    role: "Defined every KPI and dashboard spec, produced the SQL with AI assistance, validated results against the GL, and trained the operations manager to self-configure additional ones.",
+    role: "Defined the KPIs, specified the dashboards and checked the results against the general ledger. Trained the operations manager to configure more dashboards.",
     solution: "Designed KPI dashboards covering cycle time, utilization, yield, rework rate, backlog, throughput, and labor productivity.",
     impact: ["Real-time operational visibility for the first time", "Operations manager can self-configure dashboards", "Data-driven decision making across production"],
     date: "2024"
@@ -559,7 +782,7 @@ async def aggregate_records(
     tech: ["Claude AI", "Custom Skill", "Shopify API", "Odoo API"],
     featured: false,
     problem: "Barcode mismatches between systems were only discovered at shipping time.",
-    role: "Designed the audit logic, had it built as a Claude skill, and distributed it org-wide.",
+    role: "Designed the audit checks and led the rollout of a Claude skill for the team.",
     solution: "Cross-references barcodes/SKUs across Shopify label exports, printed label PDFs, and Odoo product variant exports.",
     impact: ["Catches mismatches before shipping", "Validates across 3 systems simultaneously", "Distributed org-wide via Cowork"],
     date: "2025"
@@ -675,7 +898,7 @@ async def aggregate_records(
     tech: ["Odoo 17", "OWL 2", "JavaScript", "SCSS", "QWeb"],
     featured: false,
     problem: "Workers could start work orders without being clocked in to the Attendance app, causing inaccurate timesheets. Constant app switching between Manufacturing, Attendance, and Timesheets.",
-    role: "Designed the complete UX flow (5-state machine) and directed the AI-assisted build of the OWL component, server controller, and interactive HTML prototype for stakeholder approval.",
+    role: "Designed the clock-in flow and directed the component and controller build. Used an interactive prototype to review the process with stakeholders.",
     solution: "A systray OWL component that renders on every Odoo backend page. Single RPC endpoint returns full state in one call. On clock-in, workers select an activity from project tasks. Bottom control panel shows live timer, activity switching, and break handling. Salaried employees bypass entirely via configurable tags.",
     impact: ["Every page gated — works in Manufacturing, Sales, Inventory, everywhere", "Single RPC round-trip instead of 4-5 separate ORM calls", "Automatic timesheet entries — no manual timekeeping", "Configurable: project, tags, poll interval all via Settings"],
     date: "2026",
@@ -769,7 +992,7 @@ async def aggregate_records(
     tech: ["Next.js 16", "React 19", "CSS (Custom)", "REST API", "In-Memory Store"],
     featured: false,
     problem: "Travel operations coordination happened over WhatsApp and email. Flight delays caused a cascade of manual phone calls to drivers, agencies, and hotels.",
-    role: "Designed the full application and built it with AI-assisted development — role-based dashboards, cascade automation engine, driver mobile app, and agency portal.",
+    role: "Designed the dashboards and coordination workflows, then used AI tools to build and test the application.",
     solution: "Three role-based interfaces: DMC admin hub with real-time fleet monitoring, agency portal for booking management, and mobile-first driver app. Flight delay cascade system automatically adjusts bookings, notifies drivers via WhatsApp, and alerts agencies via SMS.",
     impact: ["Automated flight delay cascades across all stakeholders", "3 role-based dashboards (admin, agency, driver)", "18 API endpoints with service layer architecture", "Mobile-first driver interface with live trip tracking"],
     date: "2025",
@@ -878,7 +1101,7 @@ async def aggregate_records(
     tech: ["Odoo 16", "Odoo 17", "Change Management", "UAT"],
     featured: false,
     problem: "Running on Odoo 16 with accumulating technical debt. Needed to upgrade without disrupting operations.",
-    role: "Led everything — coordinated with offshore team, end-to-end testing, UAT, department meetings, training, post-upgrade resolution.",
+    role: "Coordinated the offshore team, testing, UAT and department training. Owned the follow-up and issue resolution after the upgrade.",
     solution: "Managed the full upgrade lifecycle: pre-upgrade audit, module compatibility testing, data migration, staged rollout, and monitoring.",
     impact: ["Minimal operational disruption", "All modules tested end-to-end", "Hands-on training to all departments", "Resulted in significant raise ($91K → $105K + bonus)"],
     date: "2023–2024"

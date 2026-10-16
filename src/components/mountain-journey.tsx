@@ -1,445 +1,200 @@
 "use client";
 
-/**
- * Journey to the Summit — Studio Ghibli scroll-parallax.
- *
- * Pinned 100vh viewport scroll-driven across a 500vh container. Inside:
- *   1. Four AI-generated hand-painted seasonal mountain backgrounds (Spring,
- *      Summer, Autumn, Winter). They crossfade as scroll progresses.
- *   2. SVG climbing path (matched to mountain art) drawn brighter behind the
- *      character to show progress.
- *   3. Animated hiker character that walks up the path as you scroll.
- *   4. HTML checkpoint cards anchored to path % positions, pop in as character
- *      passes.
- *   5. HUD overlay — title, year ticker (2016 → 2026), season label.
- */
-
-import { useRef, useState, useEffect } from "react";
-import Image from "next/image";
-import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
-import {
-  CHECKPOINTS,
-  PATH_D,
-  pathPointAt,
-  progressToYear,
-  progressToSeason,
-  type Season,
-} from "@/data/journey-checkpoints";
-
-// Sprite sheet: 6 frames horizontal, each 236x400, total 1416x400.
-// Rendered at scaled size, frames cycle via CSS steps().
-const SPRITE_FRAMES = 6;
-const SPRITE_WIDTH = 60; // displayed frame width in px
-const SPRITE_HEIGHT = 102; // displayed frame height in px (preserves 236:400 aspect)
-
-const BASE_PATH = "/images/journey";
+import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
+import { AnimatePresence, motion, useMotionValue, useMotionValueEvent, useReducedMotion, useScroll, useTransform } from "framer-motion";
+import { ArrowDown, ArrowLeft, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { CHECKPOINTS, PATH_D, pathPointAt, progressToSeason, type Season } from "@/data/journey-checkpoints";
+import "./mountain-journey.css";
 
 const SEASONS: Season[] = ["spring", "summer", "autumn", "winter"];
-const SEASON_LABELS: Record<Season, string> = {
-  spring: "🌸 Spring",
-  summer: "☀️ Summer",
-  autumn: "🍂 Autumn",
-  winter: "❄️ Winter",
-};
+const STAGE_TITLES = [
+  "Learning how things work.",
+  "From drawings to the shop floor.",
+  "A move across the world.",
+  "Where the systems story began.",
+  "Learning from the production line.",
+  "Connecting the whole business.",
+];
+const STAGE_LABELS = ["Manipal", "Vats & Vessels", "Arizona State", "VIVA Railings", "United Foods", "Heckler Design"];
+const WORLD_WIDTH = 1920;
+const WORLD_HEIGHT = 1080;
+const clamp = (value: number, min = 0, max = 1) => Math.min(max, Math.max(min, value));
 
-/**
- * Returns crossfade opacities (0..1) for each season layer given path progress.
- * Spring: dominant 0.00-0.25, fading 0.25-0.40
- * Summer: dominant 0.30-0.50, fading 0.20-0.30 + 0.50-0.65
- * Autumn: dominant 0.55-0.75, fading 0.45-0.55 + 0.75-0.85
- * Winter: dominant 0.80-1.00, fading 0.65-0.80
- */
-function seasonOpacity(season: Season, p: number): number {
-  // Trapezoidal fade profile per season
-  const profile: Record<Season, [number, number, number, number]> = {
-    spring: [0.0, 0.0, 0.22, 0.4],
-    summer: [0.2, 0.32, 0.5, 0.62],
-    autumn: [0.5, 0.6, 0.78, 0.85],
-    winter: [0.78, 0.88, 1.0, 1.0],
-  };
-  const [a, b, c, d] = profile[season];
-  if (p < a || p > d) return 0;
-  if (p < b) return (p - a) / (b - a);
-  if (p < c) return 1;
-  return (d - p) / (d - c);
+// The character and checkpoint data use piecewise Bézier time. Convert that
+// same time to distance for the path reveal, so the line ends at the hiker.
+const PATH_SAMPLES = Array.from({ length: 201 }, (_, i) => pathPointAt(i / 200));
+const PATH_DISTANCES = [0];
+for (let i = 1; i < PATH_SAMPLES.length; i++) {
+  const a = PATH_SAMPLES[i - 1];
+  const b = PATH_SAMPLES[i];
+  PATH_DISTANCES.push(PATH_DISTANCES[i - 1] + Math.hypot(b.x - a.x, b.y - a.y));
+}
+function traveledDistance(progress: number) {
+  const sample = clamp(progress) * 200;
+  const index = Math.min(199, Math.floor(sample));
+  return (PATH_DISTANCES[index] + (PATH_DISTANCES[index + 1] - PATH_DISTANCES[index]) * (sample - index)) / PATH_DISTANCES[200];
+}
+
+function seasonOpacity(season: Season, progress: number) {
+  // Spring remains the opaque base. Upper layers crossfade in sequentially,
+  // avoiding dark gaps between paintings.
+  if (season === "spring") return 1;
+  const start = { summer: 0.22, autumn: 0.5, winter: 0.76 }[season];
+  return clamp((progress - start) / 0.13);
+}
+
+function calendarYear(progress: number) {
+  const stops = [{ t: 0, year: 2016 }, ...CHECKPOINTS, { t: 1, year: 2026 }];
+  const next = stops.findIndex((stop) => stop.t >= progress);
+  if (next <= 0) return 2016;
+  const a = stops[next - 1];
+  const b = stops[next];
+  return Math.round(a.year + (b.year - a.year) * ((progress - a.t) / (b.t - a.t)));
+}
+
+function SeasonalPainting({ season, progress }: { season: Season; progress: ReturnType<typeof useMotionValue<number>> }) {
+  const opacity = useTransform(progress, (value) => seasonOpacity(season, value));
+  return <motion.image href={`/images/journey/${season}.jpg`} x="0" y="0" width={WORLD_WIDTH} height={WORLD_HEIGHT} preserveAspectRatio="none" style={{ opacity }} />;
 }
 
 export function MountainJourney() {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [progress, setProgress] = useState(0);
-  // Sprite frame advances with distance traveled along path — locks walk
-  // cycle to scroll, not wall clock.
-  const [spriteFrame, setSpriteFrame] = useState(0);
-  // Stationary detector — freezes sprite on idle frame when scroll velocity
-  // drops to ~0 (user stopped scrolling).
-  const [isMoving, setIsMoving] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
+  const canvasRef = useRef<HTMLDivElement>(null);
+  const progress = useMotionValue(0);
+  const aspect = useMotionValue(1.75);
+  const [manual, setManual] = useState(false);
+  const [stage, setStage] = useState(0);
+  const [year, setYear] = useState(2016);
+  const [season, setSeason] = useState<Season>("spring");
+  const reducedMotion = useReducedMotion();
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ["start 64px", "end end"] });
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end end"],
-  });
-
-  useMotionValueEvent(scrollYProgress, "change", (v) => {
-    setProgress(v);
-  });
-
-  // Tight lerp + distance-driven frame stepping in single RAF.
-  // Pure scroll-driven — no wall-clock animation.
   useEffect(() => {
-    let raf = 0;
-    let smoothed = scrollYProgress.get();
-    let lastPathPt = pathPointAt(smoothed);
-    let distAccum = 0;
-    let stillCounter = 0;
-    const FRAME_DIST = 22; // path-px per sprite frame step
+    const media = window.matchMedia("(min-width: 480px) and (min-height: 760px) and (prefers-reduced-motion: no-preference), (min-width: 900px) and (min-height: 700px) and (prefers-reduced-motion: no-preference)");
+    const update = () => setManual(!media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
 
-    setProgress(smoothed);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const observer = new ResizeObserver(([entry]) => {
+      const { width, height } = entry.contentRect;
+      if (height > 0) aspect.set(width / height);
+    });
+    observer.observe(canvas);
+    return () => observer.disconnect();
+  }, [aspect]);
 
-    const tick = () => {
-      const target = scrollYProgress.get();
-      const delta = target - smoothed;
-      // Tight follow — 0.35 factor (was 0.12, too laggy)
-      smoothed += delta * 0.35;
-      setProgress(smoothed);
+  useMotionValueEvent(scrollYProgress, "change", (value) => {
+    if (!manual) progress.set(clamp(value));
+  });
+  useMotionValueEvent(progress, "change", (value) => {
+    const index = Math.max(0, CHECKPOINTS.findLastIndex((checkpoint) => value >= checkpoint.t - 0.018));
+    // React renders only when a milestone, year or season changes. Camera,
+    // painting blend, path and sprite stay entirely on MotionValues.
+    setStage((current) => current === index ? current : index);
+    const nextYear = calendarYear(value);
+    setYear((current) => current === nextYear ? current : nextYear);
+    const nextSeason = progressToSeason(value);
+    setSeason((current) => current === nextSeason ? current : nextSeason);
+  });
 
-      // Distance traveled along path since last tick
-      const cur = pathPointAt(smoothed);
-      const dx = cur.x - lastPathPt.x;
-      const dy = cur.y - lastPathPt.y;
-      const d = Math.sqrt(dx * dx + dy * dy);
-      distAccum += d;
-      lastPathPt = cur;
+  const camera = useTransform([progress, aspect], ([rawProgress, rawAspect]) => {
+    const p = Number(rawProgress);
+    const ratio = Number(rawAspect);
+    const point = pathPointAt(p);
+    const width = Math.min(WORLD_WIDTH, 1510 - p * 320);
+    const height = Math.min(ratio < 1.2 ? 850 - p * 300 : WORLD_HEIGHT, width / ratio);
+    const fittedWidth = height * ratio;
+    // Keep the climber left of the milestone copy. On narrow scenes the
+    // overlay becomes a separate row, so the climber sits near the center.
+    const anchorX = ratio < 1.2 ? 0.48 : 0.38;
+    const x = clamp(point.x - fittedWidth * anchorX, 0, WORLD_WIDTH - fittedWidth);
+    const y = clamp(point.y - height * 0.62, 0, WORLD_HEIGHT - height);
+    return `${x} ${y} ${fittedWidth} ${height}`;
+  });
+  const hikerX = useTransform(progress, (value) => pathPointAt(value).x);
+  const hikerY = useTransform(progress, (value) => pathPointAt(value).y);
+  const spriteViewBox = useTransform(progress, (value) => {
+    const resting = CHECKPOINTS.some((checkpoint) => Math.abs(value - checkpoint.t) < 0.014);
+    const frame = resting || reducedMotion ? 0 : Math.floor(traveledDistance(value) * 78) % 6;
+    return `${frame * 236} 0 236 400`;
+  });
+  const revealedPath = useTransform(progress, traveledDistance);
+  const progressScale = useTransform(progress, (value) => clamp(value));
 
-      // Step sprite frame when enough distance accumulated
-      if (distAccum >= FRAME_DIST) {
-        const steps = Math.floor(distAccum / FRAME_DIST);
-        distAccum -= steps * FRAME_DIST;
-        setSpriteFrame((f) => (f + steps) % SPRITE_FRAMES);
-        stillCounter = 0;
-        setIsMoving(true);
-      } else if (Math.abs(delta) < 0.0002) {
-        // Scroll essentially stopped — count frames
-        stillCounter++;
-        if (stillCounter > 8) setIsMoving(false);
-      }
-
-      raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [scrollYProgress]);
-
-  const year = Math.round(progressToYear(progress));
-  const currentSeason = progressToSeason(progress);
-
-  // Step-by-step character movement — piecewise ease-in-out through checkpoint t values.
-  // Effect: character lingers near each checkpoint (low velocity at ends of each segment)
-  // and walks briskly between them.
-  const sortedT = [0, ...CHECKPOINTS.map((c) => c.t), 1];
-  let charT = progress;
-  for (let i = 0; i < sortedT.length - 1; i++) {
-    const a = sortedT[i];
-    const b = sortedT[i + 1];
-    if (progress >= a && progress <= b) {
-      const localP = (progress - a) / (b - a);
-      const eased =
-        localP < 0.5
-          ? 2 * localP * localP
-          : 1 - Math.pow(-2 * localP + 2, 2) / 2;
-      charT = a + eased * (b - a);
-      break;
+  function goToStage(index: number) {
+    const next = clamp(index, 0, CHECKPOINTS.length - 1);
+    const targetProgress = next === CHECKPOINTS.length - 1 ? 0.985 : CHECKPOINTS[next].t + 0.005;
+    if (manual || reducedMotion) {
+      progress.set(targetProgress);
+      return;
     }
+    const section = sectionRef.current;
+    if (!section) return;
+    const start = section.getBoundingClientRect().top + window.scrollY - 64;
+    const distance = section.offsetHeight - (window.innerHeight - 64);
+    window.scrollTo({ top: start + targetProgress * distance, behavior: "smooth" });
   }
 
-  const pathPt = pathPointAt(charT);
-  // Convert to viewport % for absolute positioning over the image layer
-  const charX = (pathPt.x / 1920) * 100;
-  const charY = (pathPt.y / 1080) * 100;
-
-  // Pause sprite walk when at checkpoint OR scroll halted
-  const nearCheckpoint = CHECKPOINTS.some((cp) => Math.abs(charT - cp.t) < 0.018);
-  const idle = nearCheckpoint || !isMoving;
-  // Idle pose = frame 0 (standing). Walking = current frame index.
-  const displayFrame = idle ? 0 : spriteFrame;
-
-  // Path stroke progress (% drawn behind character)
-  const pathProgress = Math.max(0, Math.min(1, progress)) * 100;
+  const checkpoint = CHECKPOINTS[stage];
 
   return (
-    <div ref={containerRef} className="relative" style={{ height: "500vh" }}>
-      <div
-        className="sticky top-0 overflow-hidden bg-slate-900"
-        style={{ height: "100vh" }}
-      >
-        {/* ═══ LAYER 1: Season backgrounds (crossfade) ═══ */}
-        <div className="absolute inset-0">
-          {SEASONS.map((s) => (
-            <div
-              key={s}
-              className="absolute inset-0 transition-opacity duration-300"
-              style={{ opacity: seasonOpacity(s, progress) }}
-            >
-              <Image
-                src={`${BASE_PATH}/${s}.jpg`}
-                alt={`${s} mountain landscape`}
-                fill
-                priority={s === "spring"}
-                sizes="100vw"
-                className="object-cover"
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* ═══ LAYER 2: SVG path overlay ═══ */}
-        <svg
-          viewBox="0 0 1920 1080"
-          preserveAspectRatio="xMidYMid slice"
-          className="absolute inset-0 w-full h-full pointer-events-none"
-          aria-hidden
-        >
-          {/* Ghost path — full route, faint */}
-          <path
-            d={PATH_D}
-            stroke="rgba(255,255,255,0.18)"
-            strokeWidth={4}
-            fill="none"
-            strokeLinecap="round"
-            strokeDasharray="6 10"
-          />
-          {/* Climbed portion — bright, animated */}
-          <path
-            d={PATH_D}
-            stroke="rgba(255,255,255,0.85)"
-            strokeWidth={5}
-            fill="none"
-            strokeLinecap="round"
-            pathLength={100}
-            strokeDasharray={`${pathProgress} 100`}
-            style={{
-              filter: "drop-shadow(0 0 6px rgba(255,255,255,0.6))",
-            }}
-          />
-        </svg>
-
-        {/* ═══ LAYER 3: Watercolor sprite-sheet hiker — scroll-locked frame stepping ═══ */}
-        <div
-          className="absolute pointer-events-none z-20"
-          style={{
-            left: `${charX}%`,
-            top: `${charY}%`,
-            transform: "translate(-50%, -90%)",
-            width: SPRITE_WIDTH,
-            height: SPRITE_HEIGHT,
-            filter: "drop-shadow(0 4px 8px rgba(0,0,0,0.45))",
-          }}
-        >
-          <div
-            style={{
-              width: SPRITE_WIDTH,
-              height: SPRITE_HEIGHT,
-              backgroundImage: `url(/images/journey/hiker-sprite.png)`,
-              backgroundSize: `${SPRITE_WIDTH * SPRITE_FRAMES}px ${SPRITE_HEIGHT}px`,
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: `${-displayFrame * SPRITE_WIDTH}px 0px`,
-              imageRendering: "auto",
-            }}
-          />
-        </div>
-
-        {/* ═══ LAYER 4: Checkpoint anchor dots in world-space ═══ */}
-        <div className="absolute inset-0 pointer-events-none">
-          {CHECKPOINTS.map((cp) => {
-            const cpPt = pathPointAt(cp.t);
-            const cpX = (cpPt.x / 1920) * 100;
-            const cpY = (cpPt.y / 1080) * 100;
-            const visible = progress >= cp.t - 0.03;
-            const passed = progress > cp.t + 0.08;
-            const isActive = visible && !passed;
-
-            return (
-              <div
-                key={cp.id}
-                className="absolute -translate-x-1/2 -translate-y-1/2 transition-all"
-                style={{
-                  left: `${cpX}%`,
-                  top: `${cpY}%`,
-                  width: isActive ? 18 : 12,
-                  height: isActive ? 18 : 12,
-                  borderRadius: "50%",
-                  background: visible ? cp.color : "rgba(255,255,255,0.25)",
-                  border: `2px solid ${cp.color}`,
-                  boxShadow: isActive
-                    ? `0 0 18px ${cp.color}, 0 0 32px ${cp.color}80`
-                    : visible
-                      ? `0 0 8px ${cp.color}80`
-                      : "none",
-                  opacity: passed ? 0.5 : 1,
-                }}
-              />
-            );
-          })}
-        </div>
-
-        {/* ═══ LAYER 5: ACTIVE checkpoint card — single, bottom-left, swaps as scroll progresses ═══ */}
-        <div className="absolute bottom-6 left-6 md:left-8 z-30 pointer-events-none max-w-[280px]">
-          <AnimatePresence mode="wait">
-            {(() => {
-              // Find the most recent unpassed checkpoint
-              const active = [...CHECKPOINTS]
-                .reverse()
-                .find((cp) => progress >= cp.t - 0.03);
-              if (!active) return null;
-              return (
-                <motion.div
-                  key={active.id}
-                  initial={{ opacity: 0, y: 16, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -8, scale: 0.95 }}
-                  transition={{ duration: 0.45, ease: [0.34, 1.56, 0.64, 1] }}
-                  className="rounded-2xl border backdrop-blur-md px-4 py-3.5"
-                  style={{
-                    borderColor: `${active.color}66`,
-                    background: active.current
-                      ? `linear-gradient(135deg, ${active.color}26, rgba(2,6,16,0.85))`
-                      : "rgba(2,6,16,0.85)",
-                    boxShadow: active.current
-                      ? `0 0 36px ${active.color}55, 0 12px 44px rgba(0,0,0,0.65)`
-                      : "0 12px 44px rgba(0,0,0,0.65)",
-                  }}
-                >
-                  <div
-                    className="text-[10px] font-mono uppercase tracking-widest mb-2 leading-snug"
-                    style={{ color: active.color }}
-                  >
-                    {active.label} · {active.year}
-                  </div>
-                  <div className="flex gap-3 items-start">
-                    <span className="text-[22px] leading-none mt-0.5">{active.icon}</span>
-                    <div>
-                      <div className="text-sm font-bold text-white leading-snug">{active.title}</div>
-                      <div className="text-[11px] text-white/65 mt-0.5">{active.org}</div>
-                      <div className="text-[10px] text-white/45 mt-0.5">{active.period}</div>
-                    </div>
-                  </div>
-                  <p className="text-[11px] text-white/80 mt-2.5 leading-relaxed">{active.note}</p>
-                  {active.current && (
-                    <div className="flex items-center gap-1.5 mt-2.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-sky-400 animate-pulse" />
-                      <span className="text-[9px] font-mono text-sky-400 uppercase tracking-widest">
-                        Active role
-                      </span>
-                    </div>
-                  )}
-                </motion.div>
-              );
-            })()}
-          </AnimatePresence>
-        </div>
-
-        {/* ═══ LAYER 6: Summit marker — only visible when nearly there ═══ */}
-        <AnimatePresence>
-          {progress > 0.88 && (
-            <motion.div
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 0.95, y: 0 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.8 }}
-              className="absolute pointer-events-none z-20"
-              style={{
-                left: `${(1080 / 1920) * 100}%`,
-                top: `${(250 / 1080) * 100}%`,
-                transform: "translate(-50%, -100%)",
-              }}
-            >
-              <div className="text-center">
-                <div className="text-[10px] font-mono uppercase tracking-widest text-white mb-1" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.8)" }}>
-                  ⛰ Summit
-                </div>
-                <div className="text-[11px] text-white/70 italic" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.8)" }}>
-                  yet to climb…
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* ═══ HUD overlay ═══ */}
-        <div className="absolute inset-0 pointer-events-none select-none">
-          {/* Heading */}
-          <div className="absolute top-8 left-0 right-0 text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.9, ease: "easeOut" }}
-            >
-              <p className="text-[11px] font-mono tracking-[0.3em] uppercase mb-2 text-white/80" style={{ textShadow: "0 2px 12px rgba(0,0,0,0.7)" }}>
-                The Climb
-              </p>
-              <h2
-                className="text-4xl md:text-5xl font-bold text-white"
-                style={{ textShadow: "0 2px 24px rgba(0,0,0,0.85)" }}
-              >
-                Journey to the Summit
-              </h2>
-            </motion.div>
-            <AnimatePresence>
-              {progress < 0.04 && (
-                <motion.div
-                  className="mt-4"
-                  animate={{ y: [0, 7, 0] }}
-                  transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-                  exit={{ opacity: 0 }}
-                >
-                  <p className="text-white/75 text-sm tracking-wide" style={{ textShadow: "0 2px 8px rgba(0,0,0,0.8)" }}>
-                    scroll to climb
-                  </p>
-                  <div className="flex justify-center mt-2">
-                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-                      <path
-                        d="M10 4v12M4 10l6 6 6-6"
-                        stroke="rgba(255,255,255,0.7)"
-                        strokeWidth="1.5"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </div>
-                </motion.div>
-              )}
+    <section id="my-journey" ref={sectionRef} aria-labelledby="mountain-title" className="mountain-journey">
+      <div className="mountain-sticky">
+        <div className="mountain-canvas">
+          <div ref={canvasRef} className="mountain-viewport">
+          <motion.svg className="mountain-world" viewBox={camera} preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+            {SEASONS.map((item) => <SeasonalPainting key={item} season={item} progress={progress} />)}
+            <path d={PATH_D} fill="none" stroke="#fbf8eb" strokeOpacity="0.3" strokeWidth="3" strokeDasharray="4 9" strokeLinecap="round" />
+            <motion.path d={PATH_D} fill="none" stroke="#fff9df" strokeWidth="4" strokeLinecap="round" style={{ pathLength: revealedPath }} />
+            {CHECKPOINTS.map((item, index) => {
+              const point = pathPointAt(item.t);
+              return <g key={item.id} transform={`translate(${point.x} ${point.y})`}>
+                <circle r={stage === index ? 11 : 6} fill={index <= stage ? "#fff9df" : "#172822"} fillOpacity={index <= stage ? 1 : 0.4} stroke="#fff9df" strokeWidth="2" />
+                {stage === index && <circle r="20" fill="none" stroke="#fff9df" strokeWidth="1" strokeOpacity="0.45" />}
+              </g>;
+            })}
+            <motion.g style={{ x: hikerX, y: hikerY }}>
+              <ellipse cx="0" cy="3" rx="22" ry="6" fill="#152b25" fillOpacity="0.35" />
+              <motion.svg x="-35" y="-113" width="70" height="119" viewBox={spriteViewBox} overflow="hidden">
+                <image href="/images/journey/hiker-sprite.png" x="0" y="0" width="1416" height="400" />
+              </motion.svg>
+            </motion.g>
+          </motion.svg>
+          <div className="mountain-shade" aria-hidden="true" />
+          <header className="mountain-heading">
+            <p>2016 to now / My journey</p>
+            <h2 id="mountain-title">Still <span className="serif-display">climbing.</span></h2>
+            <span className="mountain-scroll-hint">{manual ? "Choose a stop along the way" : "Scroll to follow the trail"}{!manual && <ArrowDown size={13} />}</span>
+          </header>
+          <div className="mountain-clock" aria-label={`Year ${year}, ${season}`}><span>{season}</span><strong>{year}</strong></div>
+          </div>
+          <div className="mountain-milestone" aria-live={manual ? "polite" : "off"}>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div key={checkpoint.id} initial={reducedMotion ? false : { opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reducedMotion ? 0 : -8 }} transition={{ duration: reducedMotion ? 0 : 0.25 }}>
+                <p className="mountain-stage-count">0{stage + 1} / 06 <span>{checkpoint.current ? "Current chapter" : checkpoint.year}</span></p>
+                <h3>{STAGE_TITLES[stage]}</h3>
+                <p className="mountain-org">{STAGE_LABELS[stage]}</p>
+                <p className="mountain-role">{checkpoint.title}</p>
+                <Link href="/experience">Full career story <ArrowRight size={15} /></Link>
+              </motion.div>
             </AnimatePresence>
           </div>
-
-          {/* Year + Season — top right */}
-          <div className="absolute right-5 md:right-8 top-1/2 -translate-y-1/2 flex flex-col items-end gap-1.5">
-            <span className="text-[9px] font-mono text-white/60 uppercase tracking-widest" style={{ textShadow: "0 1px 4px rgba(0,0,0,0.8)" }}>
-              year
-            </span>
-            <span
-              className="text-2xl md:text-3xl font-bold text-white tabular-nums"
-              style={{ textShadow: "0 2px 16px rgba(0,0,0,0.9)" }}
-            >
-              {year}
-            </span>
-            <span
-              className="text-[11px] font-mono text-white/85 uppercase tracking-widest mt-2"
-              style={{ textShadow: "0 1px 6px rgba(0,0,0,0.9)" }}
-            >
-              {SEASON_LABELS[currentSeason]}
-            </span>
-            <div className="relative w-px h-20 bg-white/25 rounded-full overflow-hidden mt-1">
-              <div
-                className="absolute bottom-0 left-0 w-full rounded-full"
-                style={{
-                  height: `${progress * 100}%`,
-                  background: "linear-gradient(to top, #38bdf8, #c084fc)",
-                  transition: "height 0.18s linear",
-                }}
-              />
-            </div>
-          </div>
         </div>
+        <div className="mountain-controls">
+          <nav aria-label="Career milestones" className="mountain-stages">
+            {CHECKPOINTS.map((item, index) => <Button key={item.id} variant="ghost" aria-pressed={stage === index} onClick={() => goToStage(index)} className="mountain-stage"><span>{item.current ? "Now" : item.year}</span><span>{STAGE_LABELS[index]}</span></Button>)}
+          </nav>
+          <div className="mountain-step-controls"><Button variant="ghost" size="icon" aria-label="Previous career milestone" disabled={stage === 0} onClick={() => goToStage(stage - 1)}><ArrowLeft /></Button><Button variant="ghost" size="icon" aria-label="Next career milestone" disabled={stage === CHECKPOINTS.length - 1} onClick={() => goToStage(stage + 1)}><ArrowRight /></Button></div>
+        </div>
+        <div className="mountain-progress" aria-hidden="true"><motion.span style={{ scaleX: progressScale }} /></div>
       </div>
-    </div>
+    </section>
   );
 }

@@ -26,7 +26,7 @@ const sourceSerif = Source_Serif_4({
 
 export const metadata: Metadata = {
   title: "Tanmay Raut — Business Systems Architect",
-  description: "I design how manufacturing businesses run through their systems. ERP and business systems owner for a high-mix manufacturer: Odoo, manufacturing operations, cost accounting, and AI-directed delivery.",
+  description: "I look after ERP and business systems at Heckler Design. Explore my work in Odoo, manufacturing, cost accounting and process design.",
   keywords: ["ERP", "Odoo", "Manufacturing", "Business Systems", "AI", "MCP", "Systems Architect"],
   openGraph: {
     title: "Tanmay Raut — Business Systems Architect",
